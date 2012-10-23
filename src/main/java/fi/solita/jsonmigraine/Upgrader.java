@@ -8,5 +8,7 @@ import org.codehaus.jackson.node.ObjectNode;
 
 public interface Upgrader {
 
+    int version();
+
     void upgrade(ObjectNode data, int version);
 }

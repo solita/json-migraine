@@ -10,7 +10,5 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 public @interface Upgradeable {
 
-    int version();
-
-    Class<? extends Upgrader> upgrader();
+    Class<? extends Upgrader> value();
 }
