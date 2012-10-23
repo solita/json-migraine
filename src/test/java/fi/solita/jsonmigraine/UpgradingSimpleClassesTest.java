@@ -10,10 +10,12 @@ import org.codehaus.jackson.node.*;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 
+import java.util.*;
+
 import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.ANY;
 import static org.codehaus.jackson.map.SerializationConfig.Feature.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
 
 public class UpgradingSimpleClassesTest {
@@ -55,6 +57,21 @@ public class UpgradingSimpleClassesTest {
     }
 
     @Test
+    public void upgrades_one_version_at_a_time_until_fully_upgraded() {
+        final List<Integer> versionSpy = new ArrayList<Integer>();
+        int oldVersion = LATEST_VERSION - 3;
+
+        upgrade(unusedJson, oldVersion, new DummyUpgrader() {
+            @Override
+            public void upgrade(ObjectNode data, int dataVersion) {
+                versionSpy.add(dataVersion);
+            }
+        });
+
+        assertThat(versionSpy, contains(LATEST_VERSION - 3, LATEST_VERSION - 2, LATEST_VERSION - 1));
+    }
+
+    @Test
     public void does_nothing_when_already_at_latest_version() {
         int latestVersion = LATEST_VERSION;
         ObjectNode data = object("oldField", 1);
@@ -86,8 +103,9 @@ public class UpgradingSimpleClassesTest {
             throw new IllegalArgumentException("The data is newer than the upgrader. " +
                     "The data had version " + dataVersion + ", but the upgrader had version " + latestVersion + ".");
         }
-        if (dataVersion < latestVersion) {
-            upgrader.upgrade(data, 0);
+        while (dataVersion < latestVersion) {
+            upgrader.upgrade(data, dataVersion);
+            dataVersion++;
         }
     }
 
