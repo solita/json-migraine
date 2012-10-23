@@ -4,7 +4,9 @@
 
 package fi.solita.jsonmigraine;
 
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.*;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 
@@ -18,6 +20,9 @@ import static org.hamcrest.Matchers.is;
 public class UpgradingSimpleClassesTest {
 
     private static final int LATEST_VERSION = 10;
+
+    private static final DummyUpgrader unusedUpgrader = new DummyUpgrader();
+    private static final ObjectNode unusedJson = JsonNodeFactory.instance.objectNode();
 
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
@@ -35,31 +40,34 @@ public class UpgradingSimpleClassesTest {
                 .without(AUTO_DETECT_IS_GETTERS));
     }
 
-    @Ignore
     @Test
-    public void upgrades_using_the_class_upgrader() {
-        // TODO
+    public void upgrades_old_versions_using_the_class_upgrader() {
+        int oldVersion = LATEST_VERSION - 1;
+        ObjectNode data = object("oldField", 123);
+
+        upgrade(data, oldVersion, DummyEntity.class, new DummyUpgrader());
+
+        assertThat(data, is(object("newField", 123)));
     }
 
     @Test
     public void does_nothing_when_already_at_latest_version() {
-        int dataVersion = LATEST_VERSION;
-        String original = "{ oldField: 1 }";
+        int latestVersion = LATEST_VERSION;
+        ObjectNode data = object("oldField", 1);
 
-        String result = upgrade(dataVersion, original, DummyEntity.class);
+        upgrade(data, latestVersion, DummyEntity.class, new DummyUpgrader());
 
-        assertThat(result, is(original));
+        assertThat(data, is(object("oldField", 1)));
     }
 
     @Test
     public void fails_if_the_data_version_is_newer_than_the_upgrader_version() {
-        int dataVersion = LATEST_VERSION + 1;
-        String original = "{ oldField: 1 }";
+        int tooNewVersion = LATEST_VERSION + 1;
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("data had version 11");
         thrown.expectMessage("upgrader had version 10");
-        upgrade(dataVersion, original, DummyEntity.class);
+        upgrade(unusedJson, tooNewVersion, DummyEntity.class, unusedUpgrader);
     }
 
     @Test
@@ -70,19 +78,21 @@ public class UpgradingSimpleClassesTest {
         thrown.expectMessage("annotation was missing");
         thrown.expectMessage(annotationMissingClass.getName());
         thrown.expectMessage(Upgradeable.class.getName());
-        upgrade(LATEST_VERSION, "{}", annotationMissingClass);
+        upgrade(unusedJson, LATEST_VERSION, annotationMissingClass, unusedUpgrader);
     }
 
 
-    private String upgrade(int dataVersion, String original, Class<?> type) {
-        Upgradeable upgradeable = getRequiredAnnotation(type, Upgradeable.class);
+    private void upgrade(ObjectNode data, int dataVersion, Class<?> dataType, Upgrader upgrader) {
+        Upgradeable upgradeable = getRequiredAnnotation(dataType, Upgradeable.class);
 
         int latestVersion = upgradeable.version();
         if (dataVersion > latestVersion) {
             throw new IllegalArgumentException("The data is newer than the upgrader. " +
                     "The data had version " + dataVersion + ", but the upgrader had version " + latestVersion + ".");
         }
-        return original;
+        if (dataVersion < latestVersion) {
+            upgrader.upgrade(data, 0);
+        }
     }
 
     private static <T extends Annotation> T getRequiredAnnotation(Class<?> type, Class<T> annotationClass) {
@@ -95,8 +105,24 @@ public class UpgradingSimpleClassesTest {
     }
 
 
-    @Upgradeable(version = LATEST_VERSION)
+    private static ObjectNode object(String fieldName, int value) {
+        ObjectNode data = JsonNodeFactory.instance.objectNode();
+        data.put(fieldName, value);
+        return data;
+    }
+
+    @Upgradeable(version = LATEST_VERSION, upgrader = DummyUpgrader.class)
     private static class DummyEntity {
+    }
+
+    public static class DummyUpgrader implements Upgrader {
+
+        @Override
+        public void upgrade(ObjectNode data, int dataVersion) {
+            JsonNode value = data.get("oldField");
+            data.remove("oldField");
+            data.put("newField", value);
+        }
     }
 
     private static class UpgradeableAnnotationMissing {

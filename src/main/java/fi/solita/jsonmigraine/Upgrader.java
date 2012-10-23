@@ -4,13 +4,9 @@
 
 package fi.solita.jsonmigraine;
 
-import java.lang.annotation.*;
+import org.codehaus.jackson.node.ObjectNode;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Upgradeable {
+public interface Upgrader {
 
-    int version();
-
-    Class<? extends Upgrader> upgrader();
+    void upgrade(ObjectNode data, int version);
 }
