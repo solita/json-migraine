@@ -4,7 +4,6 @@
 
 package fi.solita.jsonmigraine;
 
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.*;
 import org.junit.*;
@@ -12,6 +11,7 @@ import org.junit.rules.ExpectedException;
 
 import java.util.*;
 
+import static fi.solita.jsonmigraine.JsonFactory.object;
 import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.ANY;
 import static org.codehaus.jackson.map.SerializationConfig.Feature.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,9 +47,7 @@ public class UpgradingSimpleClassesTest {
         upgrade(data, oldVersion, new DummyUpgrader() {
             @Override
             public void upgrade(ObjectNode data, int dataVersion) {
-                JsonNode value = data.get("oldField");
-                data.remove("oldField");
-                data.put("newField", value);
+                Refactor.renameField(data, "oldField", "newField");
             }
         });
 
@@ -107,12 +105,6 @@ public class UpgradingSimpleClassesTest {
             upgrader.upgrade(data, dataVersion);
             dataVersion++;
         }
-    }
-
-    private static ObjectNode object(String fieldName, int value) {
-        ObjectNode data = JsonNodeFactory.instance.objectNode();
-        data.put(fieldName, value);
-        return data;
     }
 
     private static class DummyUpgrader implements Upgrader {
