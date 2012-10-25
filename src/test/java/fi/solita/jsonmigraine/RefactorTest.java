@@ -7,20 +7,19 @@ package fi.solita.jsonmigraine;
 import org.codehaus.jackson.node.ObjectNode;
 import org.junit.Test;
 
+import static fi.solita.jsonmigraine.JsonFactory.field;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 
 public class RefactorTest {
 
     @Test
     public void rename_field() {
         int originalValue = 234;
-        ObjectNode data = JsonFactory.object("oldName", originalValue);
+        ObjectNode data = field("oldName", originalValue);
 
         Refactor.renameField(data, "oldName", "newName");
 
-        assertThat("removes old field", data.get("oldName"), is(nullValue()));
-        assertThat("adds new field", data.has("newName"));
-        assertThat("keeps the original value", data.get("newName").getIntValue(), is(originalValue));
+        assertThat(data, is(field("newName", originalValue)));
     }
 }

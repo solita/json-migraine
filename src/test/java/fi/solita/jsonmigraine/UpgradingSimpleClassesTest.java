@@ -4,13 +4,13 @@
 
 package fi.solita.jsonmigraine;
 
-import org.codehaus.jackson.node.*;
+import org.codehaus.jackson.node.ObjectNode;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 
 import java.util.*;
 
-import static fi.solita.jsonmigraine.JsonFactory.object;
+import static fi.solita.jsonmigraine.JsonFactory.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
@@ -18,7 +18,6 @@ import static org.junit.Assert.fail;
 public class UpgradingSimpleClassesTest {
 
     private static final int LATEST_VERSION = 10;
-    private static final ObjectNode unusedJson = JsonNodeFactory.instance.objectNode();
 
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
@@ -27,7 +26,7 @@ public class UpgradingSimpleClassesTest {
     @Test
     public void upgrades_old_versions_using_the_upgrader() {
         int oldVersion = LATEST_VERSION - 1;
-        ObjectNode data = object("oldField", 123);
+        ObjectNode data = field("oldField", 123);
 
         Foo.upgrade(data, oldVersion, new DummyUpgrader() {
             @Override
@@ -36,7 +35,7 @@ public class UpgradingSimpleClassesTest {
             }
         });
 
-        assertThat(data, is(object("newField", 123)));
+        assertThat(data, is(field("newField", 123)));
     }
 
     @Test
@@ -44,7 +43,7 @@ public class UpgradingSimpleClassesTest {
         final List<Integer> versionSpy = new ArrayList<Integer>();
         int oldVersion = LATEST_VERSION - 3;
 
-        Foo.upgrade(unusedJson, oldVersion, new DummyUpgrader() {
+        Foo.upgrade(unimportantObject(), oldVersion, new DummyUpgrader() {
             @Override
             public void upgrade(ObjectNode data, int dataVersion) {
                 versionSpy.add(dataVersion);
@@ -57,7 +56,7 @@ public class UpgradingSimpleClassesTest {
     @Test
     public void does_nothing_when_already_at_latest_version() {
         int latestVersion = LATEST_VERSION;
-        ObjectNode data = object("oldField", 1);
+        ObjectNode data = field("oldField", 1);
 
         Foo.upgrade(data, latestVersion, new DummyUpgrader() {
             @Override
@@ -66,7 +65,7 @@ public class UpgradingSimpleClassesTest {
             }
         });
 
-        assertThat(data, is(object("oldField", 1)));
+        assertThat(data, is(field("oldField", 1)));
     }
 
     @Test
@@ -76,7 +75,7 @@ public class UpgradingSimpleClassesTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("data had version 11");
         thrown.expectMessage("upgrader had version 10");
-        Foo.upgrade(unusedJson, tooNewVersion, new DummyUpgrader());
+        Foo.upgrade(unimportantObject(), tooNewVersion, new DummyUpgrader());
     }
 
 
