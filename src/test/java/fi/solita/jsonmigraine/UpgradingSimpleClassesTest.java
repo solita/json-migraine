@@ -7,13 +7,10 @@ package fi.solita.jsonmigraine;
 import org.codehaus.jackson.node.ObjectNode;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
+import org.mockito.InOrder;
 
-import java.util.*;
-
-import static fi.solita.jsonmigraine.JsonFactory.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.fail;
+import static fi.solita.jsonmigraine.JsonFactory.unimportantObject;
+import static org.mockito.Mockito.*;
 
 public class UpgradingSimpleClassesTest {
 
@@ -22,62 +19,65 @@ public class UpgradingSimpleClassesTest {
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
 
+    private final UpgraderInvoker invoker = mock(UpgraderInvoker.class);
+    private final InOrder inOrder = inOrder(invoker);
+
+    private final UpgradeOrderDecider sut = new UpgradeOrderDecider(invoker);
+
+    private final DummyUpgrader upgrader = new DummyUpgrader();
+    private final ObjectNode data = unimportantObject();
+    private int dataVersion;
 
     @Test
     public void upgrades_old_versions_using_the_upgrader() {
-        int oldVersion = LATEST_VERSION - 1;
-        ObjectNode data = field("oldField", 123);
+        dataVersion = LATEST_VERSION - 1;
 
-        Foo.upgrade(data, oldVersion, new DummyUpgrader() {
-            @Override
-            public void upgrade(ObjectNode data, int dataVersion) {
-                Refactor.renameField(data, "oldField", "newField");
-            }
-        });
+        upgrade();
 
-        assertThat(data, is(field("newField", 123)));
+        inOrder.verify(invoker).upgrade(data, dataVersion, upgrader);
+        verifyNoMoreInteractions(invoker);
     }
 
     @Test
     public void upgrades_one_version_at_a_time_until_fully_upgraded() {
-        final List<Integer> versionSpy = new ArrayList<Integer>();
-        int oldVersion = LATEST_VERSION - 3;
+        dataVersion = LATEST_VERSION - 3;
 
-        Foo.upgrade(unimportantObject(), oldVersion, new DummyUpgrader() {
-            @Override
-            public void upgrade(ObjectNode data, int dataVersion) {
-                versionSpy.add(dataVersion);
-            }
-        });
+        upgrade();
 
-        assertThat(versionSpy, contains(LATEST_VERSION - 3, LATEST_VERSION - 2, LATEST_VERSION - 1));
+        inOrder.verify(invoker).upgrade(data, LATEST_VERSION - 3, upgrader);
+        inOrder.verify(invoker).upgrade(data, LATEST_VERSION - 2, upgrader);
+        inOrder.verify(invoker).upgrade(data, LATEST_VERSION - 1, upgrader);
+        verifyNoMoreInteractions(invoker);
     }
 
     @Test
     public void does_nothing_when_already_at_latest_version() {
-        int latestVersion = LATEST_VERSION;
-        ObjectNode data = field("oldField", 1);
+        dataVersion = LATEST_VERSION;
 
-        Foo.upgrade(data, latestVersion, new DummyUpgrader() {
-            @Override
-            public void upgrade(ObjectNode data, int dataVersion) {
-                fail("should not be called");
-            }
-        });
+        upgrade();
 
-        assertThat(data, is(field("oldField", 1)));
+        verifyNoMoreInteractions(invoker);
     }
 
     @Test
     public void fails_if_the_data_version_is_newer_than_the_upgrader_version() {
-        int tooNewVersion = LATEST_VERSION + 1;
+        dataVersion = LATEST_VERSION + 1;
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("data had version 11");
         thrown.expectMessage("upgrader had version 10");
-        Foo.upgrade(unimportantObject(), tooNewVersion, new DummyUpgrader());
+        upgrade();
     }
 
+
+    private void upgrade() {
+        DataVersion from = new DataVersion(DummyEntity.class, dataVersion);
+        HowToUpgrade how = new HowToUpgrade(DummyEntity.class, upgrader);
+        sut.upgrade(data, from, how);
+    }
+
+    private static class DummyEntity {
+    }
 
     private static class DummyUpgrader implements Upgrader {
 
