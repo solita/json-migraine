@@ -71,8 +71,10 @@ public class UpgradingSimpleClassesTest {
 
 
     private void upgrade() {
-        DataVersion from = new DataVersion(DummyEntity.class, dataVersion);
-        HowToUpgrade how = new HowToUpgrade(DummyEntity.class, upgrader);
+        DataVersions from = new DataVersions()
+                .add(new DataVersion(DummyEntity.class, dataVersion));
+        HowToUpgrade how = new HowToUpgrade()
+                .add(new UpgradeStep(DummyEntity.class, upgrader));
         sut.upgrade(data, from, how);
     }
 

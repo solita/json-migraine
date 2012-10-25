@@ -9,20 +9,16 @@ import org.codehaus.jackson.node.ObjectNode;
 public class UpgradeOrderDecider {
 
     private final UpgraderInvoker invoker;
-    private final UpgraderFactory upgraderFactory = new UpgraderFactory();
 
     public UpgradeOrderDecider(UpgraderInvoker invoker) {
         this.invoker = invoker;
     }
 
-    public void upgrade(ObjectNode data, int dataVersion, Class<?> dataType) {
-        for (Upgrader upgrader : upgraderFactory.getUpgraders(dataType)) {
-            upgrade(data, upgrader, dataVersion);
+    public void upgrade(ObjectNode data, DataVersions from, HowToUpgrade how) {
+        for (UpgradeStep step : how.steps) {
+            DataVersion version = from.forDataType(step.dataType);
+            upgrade(data, step.upgrader, version.dataVersion);
         }
-    }
-
-    public void upgrade(ObjectNode data, DataVersion from, HowToUpgrade how) {
-        upgrade(data, how.upgrader, from.dataVersion);
     }
 
     private void upgrade(ObjectNode data, Upgrader upgrader, int dataVersion) {

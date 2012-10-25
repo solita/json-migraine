@@ -4,13 +4,14 @@
 
 package fi.solita.jsonmigraine;
 
+import java.util.*;
+
 public class HowToUpgrade {
 
-    public final Class<?> dataType;
-    public final Upgrader upgrader;
+    public final List<UpgradeStep> steps = new ArrayList<UpgradeStep>();
 
-    public HowToUpgrade(Class<?> dataType, Upgrader upgrader) {
-        this.dataType = dataType;
-        this.upgrader = upgrader;
+    public HowToUpgrade add(UpgradeStep step) {
+        steps.add(step);
+        return this;
     }
 }
