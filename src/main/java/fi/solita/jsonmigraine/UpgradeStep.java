@@ -6,11 +6,19 @@ package fi.solita.jsonmigraine;
 
 public class UpgradeStep {
 
-    public final Class<?> dataType;
-    public final Upgrader upgrader;
+    private final Class<?> dataType;
+    private final Upgrader upgrader;
 
     public UpgradeStep(Class<?> dataType, Upgrader upgrader) {
         this.dataType = dataType;
         this.upgrader = upgrader;
+    }
+
+    public Class<?> getDataType() {
+        return dataType;
+    }
+
+    public Upgrader getUpgrader() {
+        return upgrader;
     }
 }

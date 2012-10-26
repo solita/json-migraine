@@ -8,8 +8,6 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 
-import java.util.List;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -27,9 +25,9 @@ public class UpgraderFactoryTest {
         class HasUpgradeableAnnotation {
         }
 
-        List<Upgrader> upgrader = upgraderFactory.getUpgraders(HasUpgradeableAnnotation.class);
+        Upgrader upgrader = upgraderFactory.getUpgrader(HasUpgradeableAnnotation.class);
 
-        assertThat(upgrader, contains(instanceOf(DummyUpgrader.class)));
+        assertThat(upgrader, is(instanceOf(DummyUpgrader.class)));
     }
 
     @Test
@@ -43,21 +41,7 @@ public class UpgraderFactoryTest {
         thrown.expectMessage("annotation was missing");
         thrown.expectMessage(annotationMissingClass.getName());
         thrown.expectMessage(Upgradeable.class.getName());
-        upgraderFactory.getUpgraders(annotationMissingClass);
-    }
-
-    @Test
-    public void upgraders_for_parent_classes_come_first() {
-        @Upgradeable(ParentUpgrader.class)
-        class Parent {
-        }
-        @Upgradeable(ChildUpgrader.class)
-        class Child extends Parent {
-        }
-
-        List<Upgrader> upgraders = upgraderFactory.getUpgraders(Child.class);
-
-        assertThat(upgraders, contains(instanceOf(ParentUpgrader.class), instanceOf(ChildUpgrader.class)));
+        upgraderFactory.getUpgrader(annotationMissingClass);
     }
 
 
@@ -71,11 +55,5 @@ public class UpgraderFactoryTest {
         @Override
         public void upgrade(ObjectNode data, int dataVersion) {
         }
-    }
-
-    private static class ParentUpgrader extends DummyUpgrader {
-    }
-
-    private static class ChildUpgrader extends DummyUpgrader {
     }
 }

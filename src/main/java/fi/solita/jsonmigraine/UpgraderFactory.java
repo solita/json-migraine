@@ -6,20 +6,10 @@ package fi.solita.jsonmigraine;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.util.*;
 
 public class UpgraderFactory {
 
-    public List<Upgrader> getUpgraders(Class<?> type) {
-        List<Upgrader> upgraders = new ArrayList<Upgrader>();
-        for (; type != Object.class; type = type.getSuperclass()) {
-            upgraders.add(getUpgrader(type));
-        }
-        Collections.reverse(upgraders);
-        return upgraders;
-    }
-
-    private Upgrader getUpgrader(Class<?> type) {
+    public Upgrader getUpgrader(Class<?> type) {
         Class<? extends Upgrader> upgrader = getRequiredAnnotation(type, Upgradeable.class).value();
         try {
             Constructor<? extends Upgrader> c = upgrader.getDeclaredConstructor();

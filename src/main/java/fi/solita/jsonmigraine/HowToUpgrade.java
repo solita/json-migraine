@@ -14,4 +14,9 @@ public class HowToUpgrade {
         steps.add(step);
         return this;
     }
+
+    public HowToUpgrade addFirst(UpgradeStep step) {
+        steps.add(0, step);
+        return this;
+    }
 }
