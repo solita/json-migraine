@@ -12,9 +12,11 @@ import org.mockito.InOrder;
 import static fi.solita.jsonmigraine.JsonFactory.unimportantObject;
 import static org.mockito.Mockito.*;
 
-public class UpgradingSimpleClassesTest {
+public class UpgradeOrderDeciderTest {
 
     private static final int LATEST_VERSION = 10;
+    private static final int FIRST_VERSION = 100;
+    private static final int SECOND_VERSION = 200;
 
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
@@ -69,16 +71,36 @@ public class UpgradingSimpleClassesTest {
         upgrade();
     }
 
-
     private void upgrade() {
         DataVersions from = new DataVersions()
-                .add(new DataVersion(DummyEntity.class, dataVersion));
+                .add(new DataVersion(Dummy.class, dataVersion));
         HowToUpgrade how = new HowToUpgrade()
-                .add(new UpgradeStep(DummyEntity.class, upgrader));
+                .add(new UpgradeStep(Dummy.class, upgrader));
         sut.upgrade(data, from, how);
     }
 
-    private static class DummyEntity {
+    @Test
+    public void upgrades_the_first_step_fully_before_following_steps() {
+        FirstUpgrader firstUpgrader = new FirstUpgrader();
+        SecondUpgrader secondUpgrader = new SecondUpgrader();
+
+        DataVersions from = new DataVersions()
+                .add(new DataVersion(First.class, FIRST_VERSION - 2))
+                .add(new DataVersion(Second.class, SECOND_VERSION - 2));
+        HowToUpgrade how = new HowToUpgrade()
+                .add(new UpgradeStep(First.class, firstUpgrader))
+                .add(new UpgradeStep(Second.class, secondUpgrader));
+        sut.upgrade(data, from, how);
+
+        inOrder.verify(invoker).upgrade(data, FIRST_VERSION - 2, firstUpgrader);
+        inOrder.verify(invoker).upgrade(data, FIRST_VERSION - 1, firstUpgrader);
+        inOrder.verify(invoker).upgrade(data, SECOND_VERSION - 2, secondUpgrader);
+        inOrder.verify(invoker).upgrade(data, SECOND_VERSION - 1, secondUpgrader);
+        verifyNoMoreInteractions(invoker);
+    }
+
+
+    private static class Dummy {
     }
 
     private static class DummyUpgrader implements Upgrader {
@@ -90,6 +112,26 @@ public class UpgradingSimpleClassesTest {
 
         @Override
         public void upgrade(ObjectNode data, int dataVersion) {
+        }
+    }
+
+    private static class First {
+    }
+
+    private static class Second {
+    }
+
+    private static class FirstUpgrader extends DummyUpgrader {
+        @Override
+        public int version() {
+            return FIRST_VERSION;
+        }
+    }
+
+    private static class SecondUpgrader extends DummyUpgrader {
+        @Override
+        public int version() {
+            return SECOND_VERSION;
         }
     }
 }
