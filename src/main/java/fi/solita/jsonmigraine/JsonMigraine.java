@@ -9,6 +9,9 @@ import org.codehaus.jackson.node.ObjectNode;
 
 public class JsonMigraine {
 
+    private static final String DATA_FIELD = "data";
+    private static final String TYPE_FIELD = "type";
+
     private final ObjectMapper mapper;
 
     public JsonMigraine(ObjectMapper mapper) {
@@ -16,16 +19,31 @@ public class JsonMigraine {
     }
 
     public String serialize(Object data) throws Exception {
-        return mapper.writeValueAsString(data);
+        ObjectNode meta = mapper.createObjectNode();
+        meta.put(DATA_FIELD, mapper.valueToTree(data));
+        meta.put(TYPE_FIELD, data.getClass().getName());
+        return mapper.writeValueAsString(meta);
     }
 
-    public <T> T deserialize(String serializedData, Class<T> dataType) throws Exception {
-        ObjectNode data = (ObjectNode) mapper.readTree(serializedData);
+    public Object deserialize(String json) throws Exception {
+        ObjectNode meta = (ObjectNode) mapper.readTree(json);
+        ObjectNode data = (ObjectNode) meta.get(DATA_FIELD);
+        String className = meta.get(TYPE_FIELD).asText();
+
+        // TODO: extract
+        if (className.equals("fi.solita.jsonmigraine.endToEnd.SimpleV1")) {
+            className = "fi.solita.jsonmigraine.endToEnd.SimpleV2";
+        }
+
+        // TODO: read from json
+        int dataVersion = 1;
+        Class<?> dataType = Class.forName(className);
 
         DataVersions from = new DataVersions()
-                .add(new DataVersion(Class.forName("fi.solita.jsonmigraine.endToEnd.SimpleV2"), 1)); // TODO
+                .add(new DataVersion(dataType, dataVersion));
         HowToUpgrade how = new ClassAnalyzer().createUpgradePlan(dataType);
-        new UpgradeOrderDecider(new UpgraderInvokerImpl()).upgrade(data, from, how);
+        new UpgradeOrderDecider(new UpgraderInvokerImpl())
+                .upgrade(data, from, how);
 
         return mapper.readValue(data, dataType);
     }
