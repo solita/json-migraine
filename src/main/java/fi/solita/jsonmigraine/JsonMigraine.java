@@ -11,6 +11,7 @@ public class JsonMigraine {
 
     private static final String DATA_FIELD = "data";
     private static final String TYPE_FIELD = "type";
+    private static final String VERSIONS_FIELD = "versions";
 
     private final ObjectMapper mapper;
     private final TypeRenames renames;
@@ -24,26 +25,23 @@ public class JsonMigraine {
         ObjectNode meta = mapper.createObjectNode();
         meta.put(DATA_FIELD, mapper.valueToTree(data));
         meta.put(TYPE_FIELD, data.getClass().getName());
+        meta.put(VERSIONS_FIELD, ClassAnalyzer.readCurrentVersions(data.getClass()).toJson());
         return mapper.writeValueAsString(meta);
     }
 
     public Object deserialize(String json) throws Exception {
         ObjectNode meta = (ObjectNode) mapper.readTree(json);
+
         ObjectNode data = (ObjectNode) meta.get(DATA_FIELD);
-        String className = meta.get(TYPE_FIELD).asText();
+        Class<?> type = Class.forName(renames.getLatestName(meta.get(TYPE_FIELD).asText()));
+        DataVersions versions = DataVersions.fromJson(meta.get(VERSIONS_FIELD), renames);
 
-        className = renames.getLatestName(className);
+        upgrade(data, type, versions);
+        return mapper.readValue(data, type);
+    }
 
-        // TODO: read from json
-        int dataVersion = 1;
-        Class<?> dataType = Class.forName(className);
-
-        DataVersions from = new DataVersions()
-                .add(new DataVersion(dataType, dataVersion));
-        HowToUpgrade how = ClassAnalyzer.createUpgradePlan(dataType);
+    private void upgrade(ObjectNode data, Class<?> type, DataVersions versions) {
         new UpgradeOrderDecider(new UpgraderInvokerImpl())
-                .upgrade(data, from, how);
-
-        return mapper.readValue(data, dataType);
+                .upgrade(data, versions, ClassAnalyzer.createUpgradePlan(type));
     }
 }
