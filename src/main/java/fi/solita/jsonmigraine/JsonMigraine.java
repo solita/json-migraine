@@ -13,9 +13,11 @@ public class JsonMigraine {
     private static final String TYPE_FIELD = "type";
 
     private final ObjectMapper mapper;
+    private final TypeRenames renames;
 
-    public JsonMigraine(ObjectMapper mapper) {
+    public JsonMigraine(ObjectMapper mapper, TypeRenames renames) {
         this.mapper = mapper;
+        this.renames = renames;
     }
 
     public String serialize(Object data) throws Exception {
@@ -30,10 +32,7 @@ public class JsonMigraine {
         ObjectNode data = (ObjectNode) meta.get(DATA_FIELD);
         String className = meta.get(TYPE_FIELD).asText();
 
-        // TODO: extract
-        if (className.equals("fi.solita.jsonmigraine.endToEnd.SimpleV1")) {
-            className = "fi.solita.jsonmigraine.endToEnd.SimpleV2";
-        }
+        className = renames.getLatestName(className);
 
         // TODO: read from json
         int dataVersion = 1;

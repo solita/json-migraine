@@ -14,7 +14,12 @@ import static org.hamcrest.Matchers.is;
 
 public class SimpleClassesTest {
 
-    private final JsonMigraine jsonMigraine = new JsonMigraine(new ObjectMapper());
+    private final TypeRenames renames = new TypeRenames();
+    private final JsonMigraine jsonMigraine = new JsonMigraine(new ObjectMapper(), renames);
+
+    {
+        renames.rename(SimpleV1.class.getName(), SimpleV2.class.getName());
+    }
 
     @Test
     public void upgrades_classes() throws Exception {
