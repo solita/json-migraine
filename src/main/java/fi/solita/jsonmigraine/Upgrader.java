@@ -8,7 +8,18 @@ import org.codehaus.jackson.node.ObjectNode;
 
 public interface Upgrader {
 
+    /**
+     * Current version of the class.
+     */
     int version();
 
+    /**
+     * Upgrades the {@code data} from the given {@code version} to the next version.
+     * Will be called multiple times, once for each skipped version, if the data is multiple
+     * versions older than the current {@link #version()} number.
+     *
+     * @param data    data to be upgraded.
+     * @param version version of the data to be upgraded. Is always smaller than the current {@link #version()}.
+     */
     void upgrade(ObjectNode data, int version);
 }

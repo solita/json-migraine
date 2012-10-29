@@ -23,7 +23,7 @@ public class HierarchicalClassesTest {
     }
 
     @Test
-    public void upgrades_hierarchical_classes() throws Exception {
+    public void upgrades_class_hierarchies() throws Exception {
         ChildV1a v1 = new ChildV1a();
         v1.unmodified = "foo";
         v1.oldField = "bar";
