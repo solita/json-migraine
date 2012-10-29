@@ -12,13 +12,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @SuppressWarnings("unchecked")
-public class ClassAnalyzerTest {
-
-    private final ClassAnalyzer sut = new ClassAnalyzer();
+public class CreatingUpgradePlanTest {
 
     @Test
     public void finds_out_which_upgrader_to_use_for_a_class() {
-        HowToUpgrade how = sut.createUpgradePlan(Parent.class);
+        HowToUpgrade how = ClassAnalyzer.createUpgradePlan(Parent.class);
 
         assertThat(how.steps, contains(
                 step(Parent.class, ParentUpgrader.class)));
@@ -26,7 +24,7 @@ public class ClassAnalyzerTest {
 
     @Test
     public void parent_classes_are_upgraded_first() {
-        HowToUpgrade how = sut.createUpgradePlan(Child.class);
+        HowToUpgrade how = ClassAnalyzer.createUpgradePlan(Child.class);
 
         assertThat(how.steps, contains(
                 step(Parent.class, ParentUpgrader.class),

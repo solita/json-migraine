@@ -6,12 +6,25 @@ package fi.solita.jsonmigraine;
 
 public class ClassAnalyzer {
 
-    public HowToUpgrade createUpgradePlan(Class<?> dataType) {
+    public static HowToUpgrade createUpgradePlan(Class<?> dataType) {
         HowToUpgrade how = new HowToUpgrade();
         for (; dataType != Object.class; dataType = dataType.getSuperclass()) {
             Upgrader upgrader = new UpgraderFactory().getUpgrader(dataType);
             how.addFirst(new UpgradeStep(dataType, upgrader));
         }
         return how;
+    }
+
+    public static DataVersions readCurrentVersions(Class<?> dataType) {
+        DataVersions versions = new DataVersions();
+        for (; dataType != Object.class; dataType = dataType.getSuperclass()) {
+            versions.add(new DataVersion(dataType, getVersion(dataType)));
+        }
+        return versions;
+    }
+
+    private static int getVersion(Class<?> cl) {
+        Upgrader upgrader = new UpgraderFactory().getUpgrader(cl);
+        return upgrader.version();
     }
 }

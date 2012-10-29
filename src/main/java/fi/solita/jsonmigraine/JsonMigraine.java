@@ -40,7 +40,7 @@ public class JsonMigraine {
 
         DataVersions from = new DataVersions()
                 .add(new DataVersion(dataType, dataVersion));
-        HowToUpgrade how = new ClassAnalyzer().createUpgradePlan(dataType);
+        HowToUpgrade how = ClassAnalyzer.createUpgradePlan(dataType);
         new UpgradeOrderDecider(new UpgraderInvokerImpl())
                 .upgrade(data, from, how);
 

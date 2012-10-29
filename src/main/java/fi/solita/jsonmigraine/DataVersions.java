@@ -16,7 +16,7 @@ public class DataVersions {
                 return version;
             }
         }
-        throw new IllegalArgumentException("not found: " + dataType);
+        throw new IllegalArgumentException("Version information not found for " + dataType);
     }
 
     public DataVersions add(DataVersion dataVersion) {
