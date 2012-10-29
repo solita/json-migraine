@@ -33,44 +33,45 @@ public class SimpleClassesTest {
         assertThat("should not change unrelated fields", v2.unmodified, is(v1.unmodified));
         assertThat("should migrate values of renamed fields", v2.newField, is(v1.oldField));
     }
-}
 
-@Upgradeable(SimpleUpgraderV1.class)
-class SimpleV1 {
-    public String unmodified;
-    public String oldField;
-}
 
-class SimpleUpgraderV1 implements Upgrader {
-
-    @Override
-    public int version() {
-        return 1;
+    @Upgradeable(SimpleUpgraderV1.class)
+    static class SimpleV1 {
+        public String unmodified;
+        public String oldField;
     }
 
-    @Override
-    public void upgrade(ObjectNode data, int version) {
-        throw new AssertionError("cannot upgrade initial version");
-    }
-}
-
-@Upgradeable(SimpleUpgraderV2.class)
-class SimpleV2 {
-    public String unmodified;
-    public String newField;
-}
-
-class SimpleUpgraderV2 implements Upgrader {
-
-    @Override
-    public int version() {
-        return 2;
+    @Upgradeable(SimpleUpgraderV2.class)
+    static class SimpleV2 {
+        public String unmodified;
+        public String newField;
     }
 
-    @Override
-    public void upgrade(ObjectNode data, int version) {
-        if (version == 1) {
-            Refactor.renameField(data, "oldField", "newField");
+    static class SimpleUpgraderV1 implements Upgrader {
+
+        @Override
+        public int version() {
+            return 1;
+        }
+
+        @Override
+        public void upgrade(ObjectNode data, int version) {
+            throw new AssertionError("cannot upgrade initial version");
+        }
+    }
+
+    static class SimpleUpgraderV2 implements Upgrader {
+
+        @Override
+        public int version() {
+            return 2;
+        }
+
+        @Override
+        public void upgrade(ObjectNode data, int version) {
+            if (version == 1) {
+                Refactor.renameField(data, "oldField", "newField");
+            }
         }
     }
 }
