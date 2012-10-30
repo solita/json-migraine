@@ -4,13 +4,25 @@
 
 package fi.solita.jsonmigraine;
 
+import java.lang.reflect.Field;
+
 public class ClassAnalyzer {
 
     public static HowToUpgrade createUpgradePlan(Class<?> dataType) {
         HowToUpgrade how = new HowToUpgrade();
+
         for (; dataType != Object.class; dataType = dataType.getSuperclass()) {
-            Upgrader upgrader = new UpgraderFactory().getUpgrader(dataType);
-            how.addFirst(new UpgradeStep(dataType, upgrader));
+            how.addFirst(new UpgradeStep(dataType, new UpgraderFactory().getUpgrader(dataType)));
+
+            for (Field field : dataType.getDeclaredFields()) {
+                Class<?> type = field.getType();
+                if (type.isAnnotationPresent(Upgradeable.class)) {
+                    how.add(new UpgradeStep(type, new UpgraderFactory().getUpgrader(type), field.getName()));
+                }
+                if (type.isArray() && type.getComponentType().isAnnotationPresent(Upgradeable.class)) {
+                    how.add(new UpgradeStep(type, new UpgraderFactory().getUpgrader(type.getComponentType()), field.getName()));
+                }
+            }
         }
         return how;
     }

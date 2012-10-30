@@ -4,14 +4,18 @@
 
 package fi.solita.jsonmigraine;
 
+import java.util.*;
+
 public class UpgradeStep {
 
     private final Class<?> dataType;
     private final Upgrader upgrader;
+    private final List<String> path;
 
-    public UpgradeStep(Class<?> dataType, Upgrader upgrader) {
+    public UpgradeStep(Class<?> dataType, Upgrader upgrader, String... path) {
         this.dataType = dataType;
         this.upgrader = upgrader;
+        this.path = Arrays.asList(path);
     }
 
     public Class<?> getDataType() {
@@ -20,5 +24,9 @@ public class UpgradeStep {
 
     public Upgrader getUpgrader() {
         return upgrader;
+    }
+
+    public List<String> getPath() {
+        return path;
     }
 }
