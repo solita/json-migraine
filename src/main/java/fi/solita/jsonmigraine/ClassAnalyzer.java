@@ -5,22 +5,25 @@
 package fi.solita.jsonmigraine;
 
 import java.lang.reflect.Field;
+import java.util.*;
 
 public class ClassAnalyzer {
+
+    private static final UpgraderFactory upgraderFactory = new UpgraderFactory();
 
     public static HowToUpgrade createUpgradePlan(Class<?> dataType) {
         HowToUpgrade how = new HowToUpgrade();
 
         for (; dataType != Object.class; dataType = dataType.getSuperclass()) {
-            how.addFirst(new UpgradeStep(dataType, new UpgraderFactory().getUpgrader(dataType)));
+            how.addFirst(new UpgradeStep(dataType, upgraderFactory.getUpgrader(dataType)));
 
             for (Field field : dataType.getDeclaredFields()) {
                 Class<?> type = field.getType();
-                if (type.isAnnotationPresent(Upgradeable.class)) {
-                    how.add(new UpgradeStep(type, new UpgraderFactory().getUpgrader(type), field.getName()));
+                if (upgraderFactory.isUpgradeable(type)) {
+                    how.add(new UpgradeStep(type, upgraderFactory.getUpgrader(type), field.getName()));
                 }
-                if (type.isArray() && type.getComponentType().isAnnotationPresent(Upgradeable.class)) {
-                    how.add(new UpgradeStep(type, new UpgraderFactory().getUpgrader(type.getComponentType()), field.getName()));
+                if (type.isArray() && upgraderFactory.isUpgradeable(type.getComponentType())) {
+                    how.add(new UpgradeStep(type, upgraderFactory.getUpgrader(type.getComponentType()), field.getName()));
                 }
             }
         }
@@ -29,14 +32,37 @@ public class ClassAnalyzer {
 
     public static DataVersions readCurrentVersions(Class<?> dataType) {
         DataVersions versions = new DataVersions();
-        for (; dataType != Object.class; dataType = dataType.getSuperclass()) {
-            versions.add(new DataVersion(dataType, getVersion(dataType)));
+        for (Class<?> type : getAllTypes(dataType)) {
+            if (upgraderFactory.isUpgradeable(type)) {
+                versions.add(new DataVersion(type, upgraderFactory.getUpgrader(type).version()));
+            }
         }
         return versions;
     }
 
-    private static int getVersion(Class<?> cl) {
-        Upgrader upgrader = new UpgraderFactory().getUpgrader(cl);
-        return upgrader.version();
+    private static Set<Class<?>> getAllTypes(Class<?> type) {
+        Set<Class<?>> results = new HashSet<Class<?>>();
+        getAllTypes(results, type);
+        return results;
+    }
+
+    private static Set<Class<?>> getAllTypes(Set<Class<?>> results, Class<?> type) {
+        if (type == null) {
+            return results;
+        }
+        if (results.contains(type)) {
+            return results;
+        }
+        if (type.isArray()) {
+            getAllTypes(results, type.getComponentType());
+            return results;
+        }
+
+        results.add(type);
+        getAllTypes(results, type.getSuperclass());
+        for (Field field : type.getDeclaredFields()) {
+            getAllTypes(results, field.getType());
+        }
+        return results;
     }
 }

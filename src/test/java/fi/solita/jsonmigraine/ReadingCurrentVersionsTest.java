@@ -23,7 +23,7 @@ public class ReadingCurrentVersionsTest {
 
         DataVersions versions = ClassAnalyzer.readCurrentVersions(MyEntity.class);
 
-        assertThat("version", versions.forDataType(MyEntity.class).dataVersion, is(V100));
+        assertThat("version", versions.getVersion(MyEntity.class), is(V100));
     }
 
     @Test
@@ -37,11 +37,39 @@ public class ReadingCurrentVersionsTest {
 
         DataVersions versions = ClassAnalyzer.readCurrentVersions(Child.class);
 
-        assertThat("child version", versions.forDataType(Child.class).dataVersion, is(V100));
-        assertThat("parent version", versions.forDataType(Parent.class).dataVersion, is(V200));
+        assertThat("child version", versions.getVersion(Child.class), is(V100));
+        assertThat("parent version", versions.getVersion(Parent.class), is(V200));
     }
 
-    // TODO: read version numbers of upgradeable fields
+    @Test
+    public void gets_the_version_number_of_upgradeable_fields() {
+        @Upgradeable(UpgraderV200.class)
+        class MyValue {
+        }
+        @Upgradeable(UpgraderV100.class)
+        class MyEntity {
+            MyValue value;
+        }
+
+        DataVersions versions = ClassAnalyzer.readCurrentVersions(MyEntity.class);
+
+        assertThat(versions.getVersion(MyValue.class), is(V200));
+    }
+
+    @Test
+    public void gets_the_version_number_of_upgradeable_array_fields() {
+        @Upgradeable(UpgraderV200.class)
+        class MyValue {
+        }
+        @Upgradeable(UpgraderV100.class)
+        class MyEntity {
+            MyValue[] values;
+        }
+
+        DataVersions versions = ClassAnalyzer.readCurrentVersions(MyEntity.class);
+
+        assertThat(versions.getVersion(MyValue.class), is(V200));
+    }
 
 
     static class UpgraderV100 extends DummyUpgrader {

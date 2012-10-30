@@ -16,8 +16,7 @@ public class UpgradeOrderDecider {
 
     public void upgrade(ObjectNode data, DataVersions from, HowToUpgrade how) {
         for (UpgradeStep step : how.steps) {
-            DataVersion version = from.forDataType(step.getDataType());
-            upgrade(data, step.getUpgrader(), version.dataVersion);
+            upgrade(data, step.getUpgrader(), from.getVersion(step.getDataType()));
         }
     }
 

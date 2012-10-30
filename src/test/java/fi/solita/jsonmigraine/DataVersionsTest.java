@@ -23,8 +23,8 @@ public class DataVersionsTest {
 
         DataVersions result = roundTripSerialize(original);
 
-        assertThat(result.forDataType(Foo.class).dataVersion, is(10));
-        assertThat(result.forDataType(Bar.class).dataVersion, is(20));
+        assertThat(result.getVersion(Foo.class), is(10));
+        assertThat(result.getVersion(Bar.class), is(20));
     }
 
     @Test
@@ -33,7 +33,7 @@ public class DataVersionsTest {
 
         DataVersions versions = DataVersions.fromJson(new ObjectMapper().readTree(json), renames);
 
-        assertThat(versions.forDataType(Foo.class).dataVersion, is(123));
+        assertThat(versions.getVersion(Foo.class), is(123));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class DataVersionsTest {
 
         DataVersions result = roundTripSerialize(original);
 
-        assertThat(result.forDataType(Bar.class).dataVersion, is(123));
+        assertThat(result.getVersion(Bar.class), is(123));
     }
 
     private DataVersions roundTripSerialize(DataVersions original) {

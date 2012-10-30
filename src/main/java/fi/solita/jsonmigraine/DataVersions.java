@@ -13,7 +13,11 @@ public class DataVersions {
 
     public final List<DataVersion> versions = new ArrayList<DataVersion>();
 
-    public DataVersion forDataType(Class<?> dataType) {
+    public int getVersion(Class<?> dataType) {
+        return forDataType(dataType).dataVersion;
+    }
+
+    private DataVersion forDataType(Class<?> dataType) {
         for (DataVersion version : versions) {
             if (version.dataType.equals(dataType)) {
                 return version;

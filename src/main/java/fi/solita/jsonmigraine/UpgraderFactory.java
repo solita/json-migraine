@@ -9,6 +9,10 @@ import java.lang.reflect.Constructor;
 
 public class UpgraderFactory {
 
+    public boolean isUpgradeable(Class<?> type) {
+        return type.isAnnotationPresent(Upgradeable.class);
+    }
+
     public Upgrader getUpgrader(Class<?> type) {
         Class<? extends Upgrader> upgrader = getRequiredAnnotation(type, Upgradeable.class).value();
         try {
