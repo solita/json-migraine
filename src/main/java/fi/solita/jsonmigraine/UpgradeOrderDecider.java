@@ -9,18 +9,23 @@ import org.codehaus.jackson.node.ObjectNode;
 public class UpgradeOrderDecider {
 
     private final UpgraderInvoker invoker;
+    private final UpgraderProvider provider;
 
-    public UpgradeOrderDecider(UpgraderInvoker invoker) {
+    public UpgradeOrderDecider(UpgraderInvoker invoker, UpgraderProvider provider) {
         this.invoker = invoker;
+        this.provider = provider;
     }
 
     public void upgrade(ObjectNode data, DataVersions from, HowToUpgrade how) {
         for (UpgradeStep step : how.steps) {
-            upgrade(data, step.getUpgrader(), from.getVersion(step.getDataType()));
+            Class<?> dataType = step.getDataType();
+            int dataVersion = from.getVersion(dataType);
+            Upgrader upgrader = provider.getUpgrader(dataType);
+            upgrade(data, dataVersion, upgrader);
         }
     }
 
-    private void upgrade(ObjectNode data, Upgrader upgrader, int dataVersion) {
+    private void upgrade(ObjectNode data, int dataVersion, Upgrader upgrader) {
         int latestVersion = upgrader.version();
         if (dataVersion > latestVersion) {
             throw new IllegalArgumentException("The data is newer than the upgrader. " +

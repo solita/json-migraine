@@ -23,12 +23,19 @@ public class UpgradeOrderDeciderTest {
 
     private final UpgraderInvoker invoker = mock(UpgraderInvoker.class);
     private final InOrder inOrder = inOrder(invoker);
+    private final StubUpgraderProvider provider = new StubUpgraderProvider();
 
-    private final UpgradeOrderDecider sut = new UpgradeOrderDecider(invoker);
+    private final UpgradeOrderDecider sut = new UpgradeOrderDecider(invoker, provider);
 
     private final DummyUpgrader upgrader = new DummyUpgrader();
     private final ObjectNode data = unimportantObject();
     private int dataVersion;
+
+    {
+        provider.put(First.class, upgrader);
+        provider.put(Second.class, upgrader);
+        provider.put(Dummy.class, upgrader);
+    }
 
     @Test
     public void upgrades_old_versions_using_the_upgrader() {
@@ -75,7 +82,7 @@ public class UpgradeOrderDeciderTest {
         DataVersions from = new DataVersions()
                 .add(new DataVersion(Dummy.class, dataVersion));
         HowToUpgrade how = new HowToUpgrade()
-                .add(new UpgradeStep(Dummy.class, upgrader));
+                .add(new UpgradeStep(Dummy.class));
         sut.upgrade(data, from, how);
     }
 
@@ -83,13 +90,15 @@ public class UpgradeOrderDeciderTest {
     public void upgrades_the_first_step_fully_before_following_steps() {
         FirstUpgrader firstUpgrader = new FirstUpgrader();
         SecondUpgrader secondUpgrader = new SecondUpgrader();
+        provider.put(First.class, firstUpgrader);
+        provider.put(Second.class, secondUpgrader);
 
         DataVersions from = new DataVersions()
                 .add(new DataVersion(First.class, FIRST_VERSION - 2))
                 .add(new DataVersion(Second.class, SECOND_VERSION - 2));
         HowToUpgrade how = new HowToUpgrade()
-                .add(new UpgradeStep(First.class, firstUpgrader))
-                .add(new UpgradeStep(Second.class, secondUpgrader));
+                .add(new UpgradeStep(First.class))
+                .add(new UpgradeStep(Second.class));
         sut.upgrade(data, from, how);
 
         inOrder.verify(invoker).upgrade(data, FIRST_VERSION - 2, firstUpgrader);

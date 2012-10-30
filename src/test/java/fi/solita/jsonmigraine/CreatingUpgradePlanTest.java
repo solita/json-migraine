@@ -5,10 +5,7 @@
 package fi.solita.jsonmigraine;
 
 import org.codehaus.jackson.node.ObjectNode;
-import org.hamcrest.Matcher;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -20,39 +17,28 @@ public class CreatingUpgradePlanTest {
     public void finds_out_which_upgrader_to_use_for_a_class() {
         HowToUpgrade how = ClassAnalyzer.createUpgradePlan(Parent.class);
 
-        assertThat(how.steps, contains(
-                step(Parent.class, ParentUpgrader.class)));
+        assertThat(how.steps, contains(new UpgradeStep(Parent.class)));
     }
 
     @Test
     public void parent_classes_are_upgraded_first() {
         HowToUpgrade how = ClassAnalyzer.createUpgradePlan(Child.class);
 
-        assertThat(how.steps, contains(
-                step(Parent.class, ParentUpgrader.class),
-                step(Child.class, ChildUpgrader.class)));
+        assertThat(how.steps, contains(new UpgradeStep(Parent.class), new UpgradeStep(Child.class)));
     }
 
     @Test
     public void upgradeable_fields_are_upgraded() {
         HowToUpgrade how = ClassAnalyzer.createUpgradePlan(ValueWrapper.class);
 
-        assertThat(how.steps, hasItem(step(Value.class, ValueUpgrader.class, "fieldName")));
+        assertThat(how.steps, hasItem(new UpgradeStep(Value.class, "fieldName")));
     }
 
     @Test
     public void upgradeable_array_fields_are_upgraded() {
         HowToUpgrade how = ClassAnalyzer.createUpgradePlan(ValueWrapper.class);
 
-        assertThat(how.steps, hasItem(step(Value[].class, ValueUpgrader.class, "arrayFieldName")));
-    }
-
-    private static Matcher step(Class<?> dataType, Class<? extends Upgrader> upgraderType, String... path) {
-        return describedAs("UpgradeStep(%0, %1)",
-                allOf(hasProperty("dataType", equalTo(dataType)),
-                        hasProperty("upgrader", instanceOf(upgraderType)),
-                        hasProperty("path", equalTo(Arrays.asList(path)))),
-                dataType.getSimpleName(), upgraderType.getSimpleName());
+        assertThat(how.steps, hasItem(new UpgradeStep(Value[].class, "arrayFieldName")));
     }
 
 
@@ -64,6 +50,7 @@ public class CreatingUpgradePlanTest {
     private static class Child extends Parent {
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     @Upgradeable(ValueWrapperUpgrader.class)
     private static class ValueWrapper {
         private Value fieldName;

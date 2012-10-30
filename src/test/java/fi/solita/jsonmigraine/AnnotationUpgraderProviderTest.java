@@ -11,12 +11,12 @@ import org.junit.rules.ExpectedException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class UpgraderFactoryTest {
+public class AnnotationUpgraderProviderTest {
 
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
 
-    private final UpgraderFactory upgraderFactory = new UpgraderFactory();
+    private final UpgraderProvider upgraderProvider = new AnnotationUpgraderProvider();
 
 
     @Test
@@ -25,7 +25,7 @@ public class UpgraderFactoryTest {
         class HasUpgradeableAnnotation {
         }
 
-        Upgrader upgrader = upgraderFactory.getUpgrader(HasUpgradeableAnnotation.class);
+        Upgrader upgrader = upgraderProvider.getUpgrader(HasUpgradeableAnnotation.class);
 
         assertThat(upgrader, is(instanceOf(DummyUpgrader.class)));
     }
@@ -41,7 +41,7 @@ public class UpgraderFactoryTest {
         thrown.expectMessage("annotation was missing");
         thrown.expectMessage(annotationMissingClass.getName());
         thrown.expectMessage(Upgradeable.class.getName());
-        upgraderFactory.getUpgrader(annotationMissingClass);
+        upgraderProvider.getUpgrader(annotationMissingClass);
     }
 
 

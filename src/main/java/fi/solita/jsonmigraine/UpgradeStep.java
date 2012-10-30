@@ -9,12 +9,10 @@ import java.util.*;
 public class UpgradeStep {
 
     private final Class<?> dataType;
-    private final Upgrader upgrader;
     private final List<String> path;
 
-    public UpgradeStep(Class<?> dataType, Upgrader upgrader, String... path) {
+    public UpgradeStep(Class<?> dataType, String... path) {
         this.dataType = dataType;
-        this.upgrader = upgrader;
         this.path = Arrays.asList(path);
     }
 
@@ -22,11 +20,29 @@ public class UpgradeStep {
         return dataType;
     }
 
-    public Upgrader getUpgrader() {
-        return upgrader;
-    }
-
     public List<String> getPath() {
         return path;
+    }
+
+    @Override
+    public String toString() {
+        return "UpgradeStep{" +
+                "dataType=" + dataType +
+                ", path=" + path +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof UpgradeStep)) {
+            return false;
+        }
+        UpgradeStep that = (UpgradeStep) obj;
+        return dataType.equals(that.dataType) && path.equals(that.path);
+    }
+
+    @Override
+    public int hashCode() {
+        return dataType.hashCode() + path.hashCode();
     }
 }

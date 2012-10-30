@@ -7,12 +7,13 @@ package fi.solita.jsonmigraine;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 
-public class UpgraderFactory {
+public class AnnotationUpgraderProvider implements UpgraderProvider {
 
     public boolean isUpgradeable(Class<?> type) {
         return type.isAnnotationPresent(Upgradeable.class);
     }
 
+    @Override
     public Upgrader getUpgrader(Class<?> type) {
         Class<? extends Upgrader> upgrader = getRequiredAnnotation(type, Upgradeable.class).value();
         try {

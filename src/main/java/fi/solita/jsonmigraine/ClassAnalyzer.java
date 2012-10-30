@@ -9,21 +9,21 @@ import java.util.*;
 
 public class ClassAnalyzer {
 
-    private static final UpgraderFactory upgraderFactory = new UpgraderFactory();
+    private static final AnnotationUpgraderProvider provider = new AnnotationUpgraderProvider();
 
     public static HowToUpgrade createUpgradePlan(Class<?> dataType) {
         HowToUpgrade how = new HowToUpgrade();
 
         for (; dataType != Object.class; dataType = dataType.getSuperclass()) {
-            how.addFirst(new UpgradeStep(dataType, upgraderFactory.getUpgrader(dataType)));
+            how.addFirst(new UpgradeStep(dataType));
 
             for (Field field : dataType.getDeclaredFields()) {
                 Class<?> type = field.getType();
-                if (upgraderFactory.isUpgradeable(type)) {
-                    how.add(new UpgradeStep(type, upgraderFactory.getUpgrader(type), field.getName()));
+                if (provider.isUpgradeable(type)) {
+                    how.add(new UpgradeStep(type, field.getName()));
                 }
-                if (type.isArray() && upgraderFactory.isUpgradeable(type.getComponentType())) {
-                    how.add(new UpgradeStep(type, upgraderFactory.getUpgrader(type.getComponentType()), field.getName()));
+                if (type.isArray() && provider.isUpgradeable(type.getComponentType())) {
+                    how.add(new UpgradeStep(type, field.getName()));
                 }
             }
         }
@@ -33,8 +33,8 @@ public class ClassAnalyzer {
     public static DataVersions readCurrentVersions(Class<?> dataType) {
         DataVersions versions = new DataVersions();
         for (Class<?> type : getAllTypes(dataType)) {
-            if (upgraderFactory.isUpgradeable(type)) {
-                versions.add(new DataVersion(type, upgraderFactory.getUpgrader(type).version()));
+            if (provider.isUpgradeable(type)) {
+                versions.add(new DataVersion(type, provider.getUpgrader(type).version()));
             }
         }
         return versions;
