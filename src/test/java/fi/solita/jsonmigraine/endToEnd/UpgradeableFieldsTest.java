@@ -5,9 +5,12 @@
 package fi.solita.jsonmigraine.endToEnd;
 
 import fi.solita.jsonmigraine.*;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
-import org.junit.*;
+import org.codehaus.jackson.node.ArrayNode;
+import org.junit.Test;
+
+import java.util.Iterator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -22,7 +25,6 @@ public class UpgradeableFieldsTest {
         renames.rename(WrapperV1a.class.getName(), WrapperV1b.class.getName());
     }
 
-    @Ignore // TODO
     @Test
     public void upgrades_upgradeable_fields() throws Exception {
         WrapperV1a v1 = new WrapperV1a();
@@ -63,7 +65,7 @@ public class UpgradeableFieldsTest {
         }
 
         @Override
-        public void upgrade(ObjectNode data, int version) {
+        public void upgrade(JsonNode data, int version) {
         }
     }
 
@@ -75,8 +77,14 @@ public class UpgradeableFieldsTest {
         }
 
         @Override
-        public void upgrade(ObjectNode data, int version) {
-            // TODO
+        public void upgrade(JsonNode data, int version) {
+            ArrayNode values = (ArrayNode) data;
+            for (Iterator<JsonNode> it = values.iterator(); it.hasNext(); ) {
+                JsonNode value = it.next();
+                if (value.asText().equals("BAR")) {
+                    it.remove();
+                }
+            }
         }
     }
 
@@ -88,7 +96,7 @@ public class UpgradeableFieldsTest {
         }
 
         @Override
-        public void upgrade(ObjectNode data, int version) {
+        public void upgrade(JsonNode data, int version) {
         }
     }
 }

@@ -4,6 +4,7 @@
 
 package fi.solita.jsonmigraine;
 
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
@@ -120,7 +121,7 @@ public class UpgradeOrderDeciderTest {
         }
 
         @Override
-        public void upgrade(ObjectNode data, int dataVersion) {
+        public void upgrade(JsonNode data, int dataVersion) {
         }
     }
 

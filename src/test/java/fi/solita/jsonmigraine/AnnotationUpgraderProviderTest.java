@@ -4,7 +4,7 @@
 
 package fi.solita.jsonmigraine;
 
-import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.JsonNode;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 
@@ -53,7 +53,7 @@ public class AnnotationUpgraderProviderTest {
         }
 
         @Override
-        public void upgrade(ObjectNode data, int dataVersion) {
+        public void upgrade(JsonNode data, int dataVersion) {
         }
     }
 }

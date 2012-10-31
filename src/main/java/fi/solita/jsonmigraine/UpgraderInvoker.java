@@ -4,9 +4,9 @@
 
 package fi.solita.jsonmigraine;
 
-import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.JsonNode;
 
 public interface UpgraderInvoker {
 
-    void upgrade(ObjectNode data, int dataVersion, Upgrader upgrader);
+    void upgrade(JsonNode data, int dataVersion, Upgrader upgrader);
 }

@@ -4,7 +4,10 @@
 
 package fi.solita.jsonmigraine;
 
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
+
+import java.util.List;
 
 public class UpgradeOrderDecider {
 
@@ -19,13 +22,21 @@ public class UpgradeOrderDecider {
     public void upgrade(ObjectNode data, DataVersions from, HowToUpgrade how) {
         for (UpgradeStep step : how.steps) {
             Class<?> dataType = step.getDataType();
+            List<String> path = step.getPath();
+            if (dataType.isArray()) {
+                dataType = dataType.getComponentType();
+            }
             int dataVersion = from.getVersion(dataType);
             Upgrader upgrader = provider.getUpgrader(dataType);
-            upgrade(data, dataVersion, upgrader);
+            if (path.isEmpty()) {
+                upgrade(data, dataVersion, upgrader);
+            } else {
+                upgrade(data.get(path.get(0)), dataVersion, upgrader);
+            }
         }
     }
 
-    private void upgrade(ObjectNode data, int dataVersion, Upgrader upgrader) {
+    private void upgrade(JsonNode data, int dataVersion, Upgrader upgrader) {
         int latestVersion = upgrader.version();
         if (dataVersion > latestVersion) {
             throw new IllegalArgumentException("The data is newer than the upgrader. " +

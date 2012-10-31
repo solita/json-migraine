@@ -4,7 +4,7 @@
 
 package fi.solita.jsonmigraine;
 
-import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.JsonNode;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -88,7 +88,7 @@ public class ReadingCurrentVersionsTest {
 
     static abstract class DummyUpgrader implements Upgrader {
         @Override
-        public void upgrade(ObjectNode data, int version) {
+        public void upgrade(JsonNode data, int version) {
         }
     }
 }

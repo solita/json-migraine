@@ -4,7 +4,7 @@
 
 package fi.solita.jsonmigraine;
 
-import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.JsonNode;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -81,7 +81,7 @@ public class CreatingUpgradePlanTest {
         }
 
         @Override
-        public void upgrade(ObjectNode data, int version) {
+        public void upgrade(JsonNode data, int version) {
         }
     }
 }

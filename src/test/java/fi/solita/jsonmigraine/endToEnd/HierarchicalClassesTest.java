@@ -5,6 +5,7 @@
 package fi.solita.jsonmigraine.endToEnd;
 
 import fi.solita.jsonmigraine.*;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.junit.Test;
@@ -64,7 +65,7 @@ public class HierarchicalClassesTest {
         }
 
         @Override
-        public void upgrade(ObjectNode data, int version) {
+        public void upgrade(JsonNode data, int version) {
         }
     }
 
@@ -76,9 +77,9 @@ public class HierarchicalClassesTest {
         }
 
         @Override
-        public void upgrade(ObjectNode data, int version) {
+        public void upgrade(JsonNode data, int version) {
             if (version == 1) {
-                Refactor.renameField(data, "oldField", "newField");
+                Refactor.renameField((ObjectNode) data, "oldField", "newField");
             }
         }
     }
@@ -91,7 +92,7 @@ public class HierarchicalClassesTest {
         }
 
         @Override
-        public void upgrade(ObjectNode data, int version) {
+        public void upgrade(JsonNode data, int version) {
         }
     }
 }

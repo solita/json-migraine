@@ -4,12 +4,12 @@
 
 package fi.solita.jsonmigraine;
 
-import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.JsonNode;
 
 public class UpgraderInvokerImpl implements UpgraderInvoker {
 
     @Override
-    public void upgrade(ObjectNode data, int dataVersion, Upgrader upgrader) {
+    public void upgrade(JsonNode data, int dataVersion, Upgrader upgrader) {
         upgrader.upgrade(data, dataVersion);
     }
 }

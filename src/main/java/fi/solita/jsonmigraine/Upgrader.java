@@ -4,7 +4,7 @@
 
 package fi.solita.jsonmigraine;
 
-import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.JsonNode;
 
 public interface Upgrader {
 
@@ -21,5 +21,5 @@ public interface Upgrader {
      * @param data    data to be upgraded.
      * @param version version of the data to be upgraded. Is always smaller than the current {@link #version()}.
      */
-    void upgrade(ObjectNode data, int version);
+    void upgrade(JsonNode data, int version);
 }
