@@ -81,8 +81,6 @@ public class UpgradeableFieldsTest {
         public ArrayNode upgrade(ArrayNode data, int version) {
             for (Iterator<JsonNode> it = data.iterator(); it.hasNext(); ) {
                 JsonNode value = it.next();
-                System.out.println("value = " + value);
-                System.out.println("value.getClass() = " + value.getClass());
                 if (value.asText().equals("BAR")) {
                     it.remove();
                 }

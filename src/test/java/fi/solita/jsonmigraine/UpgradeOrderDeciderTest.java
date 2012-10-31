@@ -5,12 +5,12 @@
 package fi.solita.jsonmigraine;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.node.ObjectNode;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 
 import static fi.solita.jsonmigraine.JsonFactory.unimportantObject;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class UpgradeOrderDeciderTest {
@@ -29,7 +29,7 @@ public class UpgradeOrderDeciderTest {
     private final UpgradeOrderDecider sut = new UpgradeOrderDecider(invoker, provider);
 
     private final DummyUpgrader upgrader = new DummyUpgrader();
-    private final ObjectNode data = unimportantObject();
+    private JsonNode data = unimportantObject();
     private int dataVersion;
 
     {
@@ -44,7 +44,7 @@ public class UpgradeOrderDeciderTest {
 
         upgrade();
 
-        inOrder.verify(invoker).upgrade(data, dataVersion, upgrader);
+        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(dataVersion), eq(upgrader));
         verifyNoMoreInteractions(invoker);
     }
 
@@ -54,9 +54,9 @@ public class UpgradeOrderDeciderTest {
 
         upgrade();
 
-        inOrder.verify(invoker).upgrade(data, LATEST_VERSION - 3, upgrader);
-        inOrder.verify(invoker).upgrade(data, LATEST_VERSION - 2, upgrader);
-        inOrder.verify(invoker).upgrade(data, LATEST_VERSION - 1, upgrader);
+        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(LATEST_VERSION - 3), eq(upgrader));
+        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(LATEST_VERSION - 2), eq(upgrader));
+        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(LATEST_VERSION - 1), eq(upgrader));
         verifyNoMoreInteractions(invoker);
     }
 
@@ -84,7 +84,7 @@ public class UpgradeOrderDeciderTest {
                 .add(new DataVersion(Dummy.class, dataVersion));
         HowToUpgrade how = new HowToUpgrade()
                 .add(new UpgradeStep(Dummy.class));
-        sut.upgrade(data, from, how);
+        data = sut.upgrade(data, from, how);
     }
 
     @Test
@@ -100,12 +100,12 @@ public class UpgradeOrderDeciderTest {
         HowToUpgrade how = new HowToUpgrade()
                 .add(new UpgradeStep(First.class))
                 .add(new UpgradeStep(Second.class));
-        sut.upgrade(data, from, how);
+        data = sut.upgrade(data, from, how);
 
-        inOrder.verify(invoker).upgrade(data, FIRST_VERSION - 2, firstUpgrader);
-        inOrder.verify(invoker).upgrade(data, FIRST_VERSION - 1, firstUpgrader);
-        inOrder.verify(invoker).upgrade(data, SECOND_VERSION - 2, secondUpgrader);
-        inOrder.verify(invoker).upgrade(data, SECOND_VERSION - 1, secondUpgrader);
+        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(FIRST_VERSION - 2), eq(firstUpgrader));
+        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(FIRST_VERSION - 1), eq(firstUpgrader));
+        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(SECOND_VERSION - 2), eq(secondUpgrader));
+        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(SECOND_VERSION - 1), eq(secondUpgrader));
         verifyNoMoreInteractions(invoker);
     }
 
