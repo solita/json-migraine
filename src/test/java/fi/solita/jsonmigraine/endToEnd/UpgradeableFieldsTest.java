@@ -24,15 +24,17 @@ public class UpgradeableFieldsTest {
     }
 
     @Test
-    public void upgrades_upgradeable_fields() throws Exception {
+    public void can_remove_and_rename_values_in_array_fields() throws Exception {
         WrapperV1a v1 = new WrapperV1a();
-        v1.field = new EnumV1[]{EnumV1.FOO, EnumV1.BAR};
+        v1.arrayField = new EnumV1[]{EnumV1.FOO, EnumV1.BAR};
 
         String serialized = jsonMigraine.serialize(v1);
         WrapperV1b v2 = (WrapperV1b) jsonMigraine.deserialize(serialized);
 
-        assertThat(v2.field, is(arrayContaining(EnumV2.FOO_RENAMED)));
+        assertThat(v2.arrayField, is(arrayContaining(EnumV2.FOO_RENAMED)));
     }
+
+    // TODO: can remove and rename values in regular fields
 
 
     @Upgradeable(EnumUpgraderV1.class)
@@ -47,12 +49,12 @@ public class UpgradeableFieldsTest {
 
     @Upgradeable(WrapperUpgraderV1.class)
     static class WrapperV1a {
-        public EnumV1[] field;
+        public EnumV1[] arrayField;
     }
 
     @Upgradeable(WrapperUpgraderV1.class)
     static class WrapperV1b {
-        public EnumV2[] field;
+        public EnumV2[] arrayField;
     }
 
     static class EnumUpgraderV1 implements Upgrader {
@@ -77,20 +79,29 @@ public class UpgradeableFieldsTest {
 
         @Override
         public ArrayNode upgrade(ArrayNode data, int version) {
-            if (version == 1) {
-                ArrayNode result = JsonNodeFactory.instance.arrayNode();
-                for (JsonNode value : data) {
-                    if (value.asText().equals("BAR")) {
-                        // remove
-                    } else if (value.asText().equals("FOO")) {
-                        result.add("FOO_RENAMED"); // rename
-                    } else {
-                        result.add(value);
-                    }
+            // TODO: move this loop higher
+            ArrayNode result = JsonNodeFactory.instance.arrayNode();
+            for (JsonNode value : data) {
+                try {
+                    JsonNode upgraded = upgradeValue(value, version);
+                    result.add(upgraded);
+                } catch (ValueRemovedException e) {
+                    // removed
                 }
-                data = result;
             }
-            return data;
+            return result;
+        }
+
+        private JsonNode upgradeValue(JsonNode value, int version) {
+            if (version == 1) {
+                if (value.asText().equals("BAR")) {
+                    throw new ValueRemovedException();
+                }
+                if (value.asText().equals("FOO")) {
+                    return JsonNodeFactory.instance.textNode("FOO_RENAMED");
+                }
+            }
+            return value;
         }
     }
 
