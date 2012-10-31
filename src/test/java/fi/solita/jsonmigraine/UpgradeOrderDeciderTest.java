@@ -121,7 +121,8 @@ public class UpgradeOrderDeciderTest {
         }
 
         @Override
-        public void upgrade(JsonNode data, int dataVersion) {
+        public JsonNode upgrade(JsonNode data, int dataVersion) {
+            return data;
         }
     }
 

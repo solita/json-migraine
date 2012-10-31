@@ -10,13 +10,13 @@ import org.codehaus.jackson.node.ArrayNode;
 public abstract class ArrayUpgrader implements Upgrader {
 
     @Override
-    public final void upgrade(JsonNode data, int version) {
+    public final JsonNode upgrade(JsonNode data, int version) {
         if (data instanceof ArrayNode) {
-            upgrade((ArrayNode) data, version);
+            return upgrade((ArrayNode) data, version);
         } else {
             throw new IllegalArgumentException("Expected an array, but got " + data);
         }
     }
 
-    public abstract void upgrade(ArrayNode data, int version);
+    public abstract ArrayNode upgrade(ArrayNode data, int version);
 }

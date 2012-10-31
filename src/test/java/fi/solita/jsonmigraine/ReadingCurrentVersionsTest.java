@@ -88,7 +88,8 @@ public class ReadingCurrentVersionsTest {
 
     static abstract class DummyUpgrader implements Upgrader {
         @Override
-        public void upgrade(JsonNode data, int version) {
+        public JsonNode upgrade(JsonNode data, int version) {
+            return data;
         }
     }
 }

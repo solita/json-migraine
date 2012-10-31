@@ -10,13 +10,13 @@ import org.codehaus.jackson.node.ObjectNode;
 public abstract class ObjectUpgrader implements Upgrader {
 
     @Override
-    public final void upgrade(JsonNode data, int version) {
+    public final JsonNode upgrade(JsonNode data, int version) {
         if (data instanceof ObjectNode) {
-            upgrade((ObjectNode) data, version);
+            return upgrade((ObjectNode) data, version);
         } else {
             throw new IllegalArgumentException("Expected an object, but got " + data);
         }
     }
 
-    public abstract void upgrade(ObjectNode data, int version);
+    public abstract ObjectNode upgrade(ObjectNode data, int version);
 }

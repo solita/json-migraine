@@ -65,7 +65,8 @@ public class HierarchicalClassesTest {
         }
 
         @Override
-        public void upgrade(JsonNode data, int version) {
+        public JsonNode upgrade(JsonNode data, int version) {
+            return data;
         }
     }
 
@@ -77,10 +78,11 @@ public class HierarchicalClassesTest {
         }
 
         @Override
-        public void upgrade(ObjectNode data, int version) {
+        public ObjectNode upgrade(ObjectNode data, int version) {
             if (version == 1) {
                 Refactor.renameField(data, "oldField", "newField");
             }
+            return data;
         }
     }
 
@@ -92,7 +94,8 @@ public class HierarchicalClassesTest {
         }
 
         @Override
-        public void upgrade(JsonNode data, int version) {
+        public JsonNode upgrade(JsonNode data, int version) {
+            return data;
         }
     }
 }

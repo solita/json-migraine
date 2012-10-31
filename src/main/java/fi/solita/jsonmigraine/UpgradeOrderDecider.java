@@ -43,6 +43,7 @@ public class UpgradeOrderDecider {
                     "The data had version " + dataVersion + ", but the upgrader had version " + latestVersion + ".");
         }
         while (dataVersion < latestVersion) {
+            // TODO: use the returned value
             invoker.upgrade(data, dataVersion, upgrader);
             dataVersion++;
         }

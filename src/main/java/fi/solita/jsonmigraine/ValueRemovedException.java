@@ -4,9 +4,5 @@
 
 package fi.solita.jsonmigraine;
 
-import org.codehaus.jackson.JsonNode;
-
-public interface UpgraderInvoker {
-
-    JsonNode upgrade(JsonNode data, int dataVersion, Upgrader upgrader);
+public class ValueRemovedException extends RuntimeException {
 }

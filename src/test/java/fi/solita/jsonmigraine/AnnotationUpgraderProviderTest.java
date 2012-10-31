@@ -53,7 +53,8 @@ public class AnnotationUpgraderProviderTest {
         }
 
         @Override
-        public void upgrade(JsonNode data, int dataVersion) {
+        public JsonNode upgrade(JsonNode data, int dataVersion) {
+            return data;
         }
     }
 }

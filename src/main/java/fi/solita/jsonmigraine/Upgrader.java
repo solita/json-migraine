@@ -20,6 +20,9 @@ public interface Upgrader {
      *
      * @param data    data to be upgraded.
      * @param version version of the data to be upgraded. Is always smaller than the current {@link #version()}.
+     * @return the upgraded data. May be the same or different instance than the input data.
+     * @throws ValueRemovedException if this data should be removed from the contained JSON
+     *                               (assuming we are upgrading the content of a field).
      */
-    void upgrade(JsonNode data, int version);
+    JsonNode upgrade(JsonNode data, int version);
 }

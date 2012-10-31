@@ -81,7 +81,8 @@ public class CreatingUpgradePlanTest {
         }
 
         @Override
-        public void upgrade(JsonNode data, int version) {
+        public JsonNode upgrade(JsonNode data, int version) {
+            return data;
         }
     }
 }

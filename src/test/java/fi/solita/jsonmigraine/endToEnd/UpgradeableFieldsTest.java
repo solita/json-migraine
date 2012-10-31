@@ -65,7 +65,8 @@ public class UpgradeableFieldsTest {
         }
 
         @Override
-        public void upgrade(JsonNode data, int version) {
+        public JsonNode upgrade(JsonNode data, int version) {
+            return data;
         }
     }
 
@@ -77,13 +78,16 @@ public class UpgradeableFieldsTest {
         }
 
         @Override
-        public void upgrade(ArrayNode data, int version) {
+        public ArrayNode upgrade(ArrayNode data, int version) {
             for (Iterator<JsonNode> it = data.iterator(); it.hasNext(); ) {
                 JsonNode value = it.next();
+                System.out.println("value = " + value);
+                System.out.println("value.getClass() = " + value.getClass());
                 if (value.asText().equals("BAR")) {
                     it.remove();
                 }
             }
+            return data;
         }
     }
 
@@ -95,7 +99,8 @@ public class UpgradeableFieldsTest {
         }
 
         @Override
-        public void upgrade(JsonNode data, int version) {
+        public JsonNode upgrade(JsonNode data, int version) {
+            return data;
         }
     }
 }
