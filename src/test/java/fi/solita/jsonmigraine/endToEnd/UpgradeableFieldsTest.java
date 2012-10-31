@@ -7,10 +7,8 @@ package fi.solita.jsonmigraine.endToEnd;
 import fi.solita.jsonmigraine.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.*;
 import org.junit.Test;
-
-import java.util.Iterator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -33,7 +31,7 @@ public class UpgradeableFieldsTest {
         String serialized = jsonMigraine.serialize(v1);
         WrapperV1b v2 = (WrapperV1b) jsonMigraine.deserialize(serialized);
 
-        assertThat(v2.field, is(arrayContaining(EnumV2.FOO)));
+        assertThat(v2.field, is(arrayContaining(EnumV2.FOO_RENAMED)));
     }
 
 
@@ -44,7 +42,7 @@ public class UpgradeableFieldsTest {
 
     @Upgradeable(EnumUpgraderV2.class)
     enum EnumV2 {
-        FOO
+        FOO_RENAMED
     }
 
     @Upgradeable(WrapperUpgraderV1.class)
@@ -79,11 +77,18 @@ public class UpgradeableFieldsTest {
 
         @Override
         public ArrayNode upgrade(ArrayNode data, int version) {
-            for (Iterator<JsonNode> it = data.iterator(); it.hasNext(); ) {
-                JsonNode value = it.next();
-                if (value.asText().equals("BAR")) {
-                    it.remove();
+            if (version == 1) {
+                ArrayNode result = JsonNodeFactory.instance.arrayNode();
+                for (JsonNode value : data) {
+                    if (value.asText().equals("BAR")) {
+                        // remove
+                    } else if (value.asText().equals("FOO")) {
+                        result.add("FOO_RENAMED"); // rename
+                    } else {
+                        result.add(value);
+                    }
                 }
+                data = result;
             }
             return data;
         }
