@@ -61,7 +61,7 @@ public class SimpleClassesTest {
         }
     }
 
-    static class SimpleUpgraderV2 implements Upgrader {
+    static class SimpleUpgraderV2 extends ObjectUpgrader {
 
         @Override
         public int version() {
@@ -69,9 +69,9 @@ public class SimpleClassesTest {
         }
 
         @Override
-        public void upgrade(JsonNode data, int version) {
+        public void upgrade(ObjectNode data, int version) {
             if (version == 1) {
-                Refactor.renameField((ObjectNode) data, "oldField", "newField");
+                Refactor.renameField(data, "oldField", "newField");
             }
         }
     }

@@ -69,7 +69,7 @@ public class UpgradeableFieldsTest {
         }
     }
 
-    static class EnumUpgraderV2 implements Upgrader {
+    static class EnumUpgraderV2 extends ArrayUpgrader {
 
         @Override
         public int version() {
@@ -77,9 +77,8 @@ public class UpgradeableFieldsTest {
         }
 
         @Override
-        public void upgrade(JsonNode data, int version) {
-            ArrayNode values = (ArrayNode) data;
-            for (Iterator<JsonNode> it = values.iterator(); it.hasNext(); ) {
+        public void upgrade(ArrayNode data, int version) {
+            for (Iterator<JsonNode> it = data.iterator(); it.hasNext(); ) {
                 JsonNode value = it.next();
                 if (value.asText().equals("BAR")) {
                     it.remove();

@@ -69,7 +69,7 @@ public class HierarchicalClassesTest {
         }
     }
 
-    static class ParentUpgraderV2 implements Upgrader {
+    static class ParentUpgraderV2 extends ObjectUpgrader {
 
         @Override
         public int version() {
@@ -77,9 +77,9 @@ public class HierarchicalClassesTest {
         }
 
         @Override
-        public void upgrade(JsonNode data, int version) {
+        public void upgrade(ObjectNode data, int version) {
             if (version == 1) {
-                Refactor.renameField((ObjectNode) data, "oldField", "newField");
+                Refactor.renameField(data, "oldField", "newField");
             }
         }
     }
