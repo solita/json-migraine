@@ -21,21 +21,29 @@ public class UpgradeOrderDecider {
 
     public JsonNode upgrade(JsonNode data, DataVersions from, HowToUpgrade how) {
         for (UpgradeStep step : how.steps) {
-            Class<?> dataType = step.getDataType();
             List<String> path = step.getPath();
             String fieldName = path.isEmpty() ? null : path.get(0);
-            if (dataType.isArray()) {
-                dataType = dataType.getComponentType();
-            }
-            int dataVersion = from.getVersion(dataType);
-            Upgrader upgrader = provider.getUpgrader(dataType);
+            Class<?> dataType = step.getDataType();
+            Class<?> upgraderType = dataType.isArray() ? dataType.getComponentType() : dataType;
+            int dataVersion = from.getVersion(upgraderType);
+            Upgrader upgrader = provider.getUpgrader(upgraderType);
 
-            if (fieldName == null) {
-                data = upgradeWholeObject(data, dataVersion, upgrader);
-            } else if (step.getDataType().isArray()) {
-                data = upgradeArrayField((ObjectNode) data, fieldName, dataVersion, upgrader);
-            } else {
-                data = upgradeField((ObjectNode) data, fieldName, dataVersion, upgrader);
+            int latestVersion = upgrader.version();
+            if (dataVersion > latestVersion) {
+                throw new IllegalArgumentException("The data is newer than the upgrader. " +
+                        "The data had version " + dataVersion + ", but the upgrader had version " + latestVersion + ".");
+            }
+            while (dataVersion < latestVersion) {
+
+                if (fieldName == null) {
+                    data = upgradeWholeObject(data, dataVersion, upgrader);
+                } else if (dataType.isArray()) {
+                    data = upgradeArrayField((ObjectNode) data, fieldName, dataVersion, upgrader);
+                } else {
+                    data = upgradeField((ObjectNode) data, fieldName, dataVersion, upgrader);
+                }
+
+                dataVersion++;
             }
         }
         return data;
@@ -75,15 +83,6 @@ public class UpgradeOrderDecider {
     }
 
     private JsonNode upgradeWholeObject(JsonNode data, int dataVersion, Upgrader upgrader) {
-        int latestVersion = upgrader.version();
-        if (dataVersion > latestVersion) {
-            throw new IllegalArgumentException("The data is newer than the upgrader. " +
-                    "The data had version " + dataVersion + ", but the upgrader had version " + latestVersion + ".");
-        }
-        while (dataVersion < latestVersion) {
-            data = invoker.upgrade(data, dataVersion, upgrader);
-            dataVersion++;
-        }
-        return data;
+        return invoker.upgradeWholeObject(data, dataVersion, upgrader);
     }
 }

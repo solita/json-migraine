@@ -44,7 +44,7 @@ public class UpgradeOrderDeciderTest {
 
         upgrade();
 
-        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(dataVersion), eq(upgrader));
+        inOrder.verify(invoker).upgradeWholeObject(any(JsonNode.class), eq(dataVersion), eq(upgrader));
         verifyNoMoreInteractions(invoker);
     }
 
@@ -54,9 +54,9 @@ public class UpgradeOrderDeciderTest {
 
         upgrade();
 
-        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(LATEST_VERSION - 3), eq(upgrader));
-        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(LATEST_VERSION - 2), eq(upgrader));
-        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(LATEST_VERSION - 1), eq(upgrader));
+        inOrder.verify(invoker).upgradeWholeObject(any(JsonNode.class), eq(LATEST_VERSION - 3), eq(upgrader));
+        inOrder.verify(invoker).upgradeWholeObject(any(JsonNode.class), eq(LATEST_VERSION - 2), eq(upgrader));
+        inOrder.verify(invoker).upgradeWholeObject(any(JsonNode.class), eq(LATEST_VERSION - 1), eq(upgrader));
         verifyNoMoreInteractions(invoker);
     }
 
@@ -102,10 +102,10 @@ public class UpgradeOrderDeciderTest {
                 .add(new UpgradeStep(Second.class));
         data = sut.upgrade(data, from, how);
 
-        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(FIRST_VERSION - 2), eq(firstUpgrader));
-        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(FIRST_VERSION - 1), eq(firstUpgrader));
-        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(SECOND_VERSION - 2), eq(secondUpgrader));
-        inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(SECOND_VERSION - 1), eq(secondUpgrader));
+        inOrder.verify(invoker).upgradeWholeObject(any(JsonNode.class), eq(FIRST_VERSION - 2), eq(firstUpgrader));
+        inOrder.verify(invoker).upgradeWholeObject(any(JsonNode.class), eq(FIRST_VERSION - 1), eq(firstUpgrader));
+        inOrder.verify(invoker).upgradeWholeObject(any(JsonNode.class), eq(SECOND_VERSION - 2), eq(secondUpgrader));
+        inOrder.verify(invoker).upgradeWholeObject(any(JsonNode.class), eq(SECOND_VERSION - 1), eq(secondUpgrader));
         verifyNoMoreInteractions(invoker);
     }
 

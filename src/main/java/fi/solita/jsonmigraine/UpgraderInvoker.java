@@ -8,5 +8,5 @@ import org.codehaus.jackson.JsonNode;
 
 public interface UpgraderInvoker {
 
-    JsonNode upgrade(JsonNode data, int dataVersion, Upgrader upgrader);
+    JsonNode upgradeWholeObject(JsonNode data, int dataVersion, Upgrader upgrader);
 }

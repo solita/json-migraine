@@ -9,7 +9,7 @@ import org.codehaus.jackson.JsonNode;
 public class UpgraderInvokerImpl implements UpgraderInvoker {
 
     @Override
-    public JsonNode upgrade(JsonNode data, int dataVersion, Upgrader upgrader) {
+    public JsonNode upgradeWholeObject(JsonNode data, int dataVersion, Upgrader upgrader) {
         return upgrader.upgrade(data, dataVersion);
     }
 }
