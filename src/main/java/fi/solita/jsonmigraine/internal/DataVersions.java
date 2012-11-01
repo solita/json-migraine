@@ -4,7 +4,7 @@
 
 package fi.solita.jsonmigraine.internal;
 
-import fi.solita.jsonmigraine.TypeRenames;
+import fi.solita.jsonmigraine.api.TypeRenames;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.*;
 

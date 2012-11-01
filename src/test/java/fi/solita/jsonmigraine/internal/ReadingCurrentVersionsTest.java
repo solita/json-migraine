@@ -4,7 +4,7 @@
 
 package fi.solita.jsonmigraine.internal;
 
-import fi.solita.jsonmigraine.*;
+import fi.solita.jsonmigraine.api.*;
 import org.codehaus.jackson.JsonNode;
 import org.junit.Test;
 

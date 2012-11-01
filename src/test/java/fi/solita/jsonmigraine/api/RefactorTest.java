@@ -2,12 +2,12 @@
 // This software is released under the MIT License.
 // The license text is at http://opensource.org/licenses/MIT
 
-package fi.solita.jsonmigraine;
+package fi.solita.jsonmigraine.api;
 
 import org.codehaus.jackson.node.ObjectNode;
 import org.junit.Test;
 
-import static fi.solita.jsonmigraine.JsonFactory.field;
+import static fi.solita.jsonmigraine.util.JsonFactory.field;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 

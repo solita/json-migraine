@@ -4,7 +4,7 @@
 
 package fi.solita.jsonmigraine.internal;
 
-import fi.solita.jsonmigraine.Upgrader;
+import fi.solita.jsonmigraine.api.Upgrader;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
 

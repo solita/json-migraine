@@ -4,7 +4,7 @@
 
 package fi.solita.jsonmigraine.internal;
 
-import fi.solita.jsonmigraine.*;
+import fi.solita.jsonmigraine.api.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;

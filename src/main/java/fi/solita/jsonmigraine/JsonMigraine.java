@@ -4,6 +4,7 @@
 
 package fi.solita.jsonmigraine;
 
+import fi.solita.jsonmigraine.api.TypeRenames;
 import fi.solita.jsonmigraine.internal.*;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;

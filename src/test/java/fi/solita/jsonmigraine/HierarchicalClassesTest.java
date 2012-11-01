@@ -2,9 +2,9 @@
 // This software is released under the MIT License.
 // The license text is at http://opensource.org/licenses/MIT
 
-package fi.solita.jsonmigraine.endToEnd;
+package fi.solita.jsonmigraine;
 
-import fi.solita.jsonmigraine.*;
+import fi.solita.jsonmigraine.api.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
@@ -13,46 +13,55 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class SimpleClassesTest {
+public class HierarchicalClassesTest {
 
     private final TypeRenames renames = new TypeRenames();
     private final JsonMigraine jsonMigraine = new JsonMigraine(new ObjectMapper(), renames);
 
     {
-        renames.rename(SimpleV1.class.getName(), SimpleV2.class.getName());
+        renames.rename(ChildV1a.class.getName(), ChildV1b.class.getName());
+        renames.rename(ParentV1.class.getName(), ParentV2.class.getName());
     }
 
     @Test
-    public void upgrades_classes() throws Exception {
-        SimpleV1 v1 = new SimpleV1();
+    public void upgrades_class_hierarchies() throws Exception {
+        ChildV1a v1 = new ChildV1a();
         v1.unmodified = "foo";
         v1.oldField = "bar";
 
-        SimpleV2 v2 = upgrade(v1);
+        ChildV1b v2 = upgrade(v1);
 
         assertThat("should not change unrelated fields", v2.unmodified, is(v1.unmodified));
         assertThat("should migrate values of renamed fields", v2.newField, is(v1.oldField));
     }
 
-    private SimpleV2 upgrade(SimpleV1 v1) throws Exception {
+    private ChildV1b upgrade(ChildV1a v1) throws Exception {
         String serialized = jsonMigraine.serialize(v1);
-        return (SimpleV2) jsonMigraine.deserialize(serialized);
+        return (ChildV1b) jsonMigraine.deserialize(serialized);
     }
 
 
-    @Upgradeable(SimpleUpgraderV1.class)
-    static class SimpleV1 {
-        public String unmodified;
+    @Upgradeable(ParentUpgraderV1.class)
+    static class ParentV1 {
         public String oldField;
     }
 
-    @Upgradeable(SimpleUpgraderV2.class)
-    static class SimpleV2 {
-        public String unmodified;
+    @Upgradeable(ParentUpgraderV2.class)
+    static class ParentV2 {
         public String newField;
     }
 
-    static class SimpleUpgraderV1 implements Upgrader {
+    @Upgradeable(ChildUpgraderV1.class)
+    static class ChildV1a extends ParentV1 {
+        public String unmodified;
+    }
+
+    @Upgradeable(ChildUpgraderV1.class)
+    static class ChildV1b extends ParentV2 {
+        public String unmodified;
+    }
+
+    static class ParentUpgraderV1 implements Upgrader {
 
         @Override
         public int version() {
@@ -61,11 +70,11 @@ public class SimpleClassesTest {
 
         @Override
         public JsonNode upgrade(JsonNode data, int version) {
-            throw new AssertionError("cannot upgrade initial version");
+            return data;
         }
     }
 
-    static class SimpleUpgraderV2 extends ObjectUpgrader {
+    static class ParentUpgraderV2 extends ObjectUpgrader {
 
         @Override
         public int version() {
@@ -77,6 +86,19 @@ public class SimpleClassesTest {
             if (version == 1) {
                 Refactor.renameField(data, "oldField", "newField");
             }
+            return data;
+        }
+    }
+
+    static class ChildUpgraderV1 implements Upgrader {
+
+        @Override
+        public int version() {
+            return 1;
+        }
+
+        @Override
+        public JsonNode upgrade(JsonNode data, int version) {
             return data;
         }
     }

@@ -4,7 +4,7 @@
 
 package fi.solita.jsonmigraine.internal;
 
-import fi.solita.jsonmigraine.Upgrader;
+import fi.solita.jsonmigraine.api.Upgrader;
 
 import java.util.*;
 

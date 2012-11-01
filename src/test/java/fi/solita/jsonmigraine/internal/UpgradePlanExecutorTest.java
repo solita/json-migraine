@@ -4,13 +4,13 @@
 
 package fi.solita.jsonmigraine.internal;
 
-import fi.solita.jsonmigraine.Upgrader;
+import fi.solita.jsonmigraine.api.Upgrader;
 import org.codehaus.jackson.JsonNode;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 
-import static fi.solita.jsonmigraine.JsonFactory.unimportantObject;
+import static fi.solita.jsonmigraine.util.JsonFactory.unimportantObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
