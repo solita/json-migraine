@@ -31,33 +31,38 @@ public class UpgradeOrderDecider {
             if (path.isEmpty()) {
                 data = upgrade(data, dataVersion, upgrader);
             } else {
-                ObjectNode obj = (ObjectNode) data;
                 String fieldName = path.get(0);
-                JsonNode original = obj.get(fieldName);
-
-                JsonNode upgraded;
-                if (original instanceof ArrayNode) {
-                    ArrayNode values = (ArrayNode) original;
-                    ArrayNode result = JsonNodeFactory.instance.arrayNode();
-
-                    for (JsonNode value : values) {
-                        try {
-                            result.add(upgrade(value, dataVersion, upgrader));
-                        } catch (ValueRemovedException e) {
-                            // removed
-                        }
-                    }
-
-                    upgraded = result;
-                } else {
-                    upgraded = upgrade(original, dataVersion, upgrader);
-                }
-
-                obj.put(fieldName, upgraded);  // XXX: not tested
-                data = obj;
+                data = upgradeField((ObjectNode) data, dataVersion, upgrader, fieldName);
             }
         }
         return data;
+    }
+
+    private ObjectNode upgradeField(ObjectNode container, int dataVersion, Upgrader upgrader, String fieldName) {
+        JsonNode original = container.get(fieldName);
+
+        JsonNode upgraded;
+        if (original instanceof ArrayNode) {
+            upgraded = upgradeArray((ArrayNode) original, dataVersion, upgrader);
+        } else {
+            upgraded = upgrade(original, dataVersion, upgrader); // XXX: not tested
+        }
+
+        container.put(fieldName, upgraded);  // XXX: not tested
+        return container;
+    }
+
+    private ArrayNode upgradeArray(ArrayNode values, int dataVersion, Upgrader upgrader) {
+        ArrayNode results = JsonNodeFactory.instance.arrayNode();
+        for (JsonNode value : values) {
+            try {
+                JsonNode upgraded = upgrade(value, dataVersion, upgrader);
+                results.add(upgraded);
+            } catch (ValueRemovedException e) {
+                // removed
+            }
+        }
+        return results;
     }
 
     private JsonNode upgrade(JsonNode data, int dataVersion, Upgrader upgrader) {
