@@ -7,7 +7,7 @@ package fi.solita.jsonmigraine.endToEnd;
 import fi.solita.jsonmigraine.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.*;
+import org.codehaus.jackson.node.JsonNodeFactory;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -70,7 +70,7 @@ public class UpgradeableFieldsTest {
         }
     }
 
-    static class EnumUpgraderV2 extends ArrayUpgrader {
+    static class EnumUpgraderV2 implements Upgrader {
 
         @Override
         public int version() {
@@ -78,30 +78,16 @@ public class UpgradeableFieldsTest {
         }
 
         @Override
-        public ArrayNode upgrade(ArrayNode data, int version) {
-            // TODO: move this loop higher
-            ArrayNode result = JsonNodeFactory.instance.arrayNode();
-            for (JsonNode value : data) {
-                try {
-                    JsonNode upgraded = upgradeValue(value, version);
-                    result.add(upgraded);
-                } catch (ValueRemovedException e) {
-                    // removed
-                }
-            }
-            return result;
-        }
-
-        private JsonNode upgradeValue(JsonNode value, int version) {
+        public JsonNode upgrade(JsonNode data, int version) {
             if (version == 1) {
-                if (value.asText().equals("BAR")) {
+                if (data.asText().equals("BAR")) {
                     throw new ValueRemovedException();
                 }
-                if (value.asText().equals("FOO")) {
+                if (data.asText().equals("FOO")) {
                     return JsonNodeFactory.instance.textNode("FOO_RENAMED");
                 }
             }
-            return value;
+            return data;
         }
     }
 

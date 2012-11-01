@@ -5,7 +5,7 @@
 package fi.solita.jsonmigraine;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.node.*;
 
 import java.util.List;
 
@@ -33,7 +33,26 @@ public class UpgradeOrderDecider {
             } else {
                 ObjectNode obj = (ObjectNode) data;
                 String fieldName = path.get(0);
-                JsonNode upgraded = upgrade(obj.get(fieldName), dataVersion, upgrader);
+                JsonNode original = obj.get(fieldName);
+
+                JsonNode upgraded;
+                if (original instanceof ArrayNode) {
+                    ArrayNode values = (ArrayNode) original;
+                    ArrayNode result = JsonNodeFactory.instance.arrayNode();
+
+                    for (JsonNode value : values) {
+                        try {
+                            result.add(upgrade(value, dataVersion, upgrader));
+                        } catch (ValueRemovedException e) {
+                            // removed
+                        }
+                    }
+
+                    upgraded = result;
+                } else {
+                    upgraded = upgrade(original, dataVersion, upgrader);
+                }
+
                 obj.put(fieldName, upgraded);  // XXX: not tested
                 data = obj;
             }
