@@ -23,53 +23,58 @@ public class UpgradeOrderDecider {
         for (UpgradeStep step : how.steps) {
             Class<?> dataType = step.getDataType();
             List<String> path = step.getPath();
+            String fieldName = path.isEmpty() ? null : path.get(0);
             if (dataType.isArray()) {
                 dataType = dataType.getComponentType();
             }
             int dataVersion = from.getVersion(dataType);
             Upgrader upgrader = provider.getUpgrader(dataType);
-            if (path.isEmpty()) {
-                data = upgrade(data, dataVersion, upgrader);
+
+            if (fieldName == null) {
+                data = upgradeWholeObject(data, dataVersion, upgrader);
+            } else if (step.getDataType().isArray()) {
+                data = upgradeArrayField((ObjectNode) data, fieldName, dataVersion, upgrader);
             } else {
-                String fieldName = path.get(0);
-                data = upgradeField((ObjectNode) data, dataVersion, upgrader, fieldName);
+                data = upgradeField((ObjectNode) data, fieldName, dataVersion, upgrader);
             }
         }
         return data;
     }
 
-    private ObjectNode upgradeField(ObjectNode container, int dataVersion, Upgrader upgrader, String fieldName) {
+    private ObjectNode upgradeField(ObjectNode container, String fieldName, int dataVersion, Upgrader upgrader) {
         JsonNode original = container.get(fieldName);
         try {
-
-            JsonNode upgraded;
-            if (original instanceof ArrayNode) {
-                upgraded = upgradeArray((ArrayNode) original, dataVersion, upgrader);
-            } else {
-                upgraded = upgrade(original, dataVersion, upgrader); // XXX: not tested
-            }
-
-            container.put(fieldName, upgraded);  // XXX: not tested
+            JsonNode upgraded = upgradeWholeObject(original, dataVersion, upgrader);
+            container.put(fieldName, upgraded);
         } catch (ValueRemovedException e) {
             container.remove(fieldName);
         }
         return container;
     }
 
+    private JsonNode upgradeArrayField(ObjectNode container, String fieldName, int dataVersion, Upgrader upgrader) {
+        JsonNode original = container.get(fieldName);
+        if (!original.isNull()) {
+            JsonNode upgraded = upgradeArray((ArrayNode) original, dataVersion, upgrader);
+            container.put(fieldName, upgraded);
+        }
+        return container;
+    }
+
     private ArrayNode upgradeArray(ArrayNode values, int dataVersion, Upgrader upgrader) {
         ArrayNode results = JsonNodeFactory.instance.arrayNode();
-        for (JsonNode value : values) {
+        for (JsonNode original : values) {
             try {
-                JsonNode upgraded = upgrade(value, dataVersion, upgrader);
+                JsonNode upgraded = upgradeWholeObject(original, dataVersion, upgrader);
                 results.add(upgraded);
             } catch (ValueRemovedException e) {
-                // removed
+                // removed; don't add to results
             }
         }
         return results;
     }
 
-    private JsonNode upgrade(JsonNode data, int dataVersion, Upgrader upgrader) {
+    private JsonNode upgradeWholeObject(JsonNode data, int dataVersion, Upgrader upgrader) {
         int latestVersion = upgrader.version();
         if (dataVersion > latestVersion) {
             throw new IllegalArgumentException("The data is newer than the upgrader. " +
