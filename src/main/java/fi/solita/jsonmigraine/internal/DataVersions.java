@@ -2,8 +2,9 @@
 // This software is released under the MIT License.
 // The license text is at http://opensource.org/licenses/MIT
 
-package fi.solita.jsonmigraine;
+package fi.solita.jsonmigraine.internal;
 
+import fi.solita.jsonmigraine.TypeRenames;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.*;
 

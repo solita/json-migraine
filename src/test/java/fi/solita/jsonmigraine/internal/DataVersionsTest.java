@@ -2,8 +2,9 @@
 // This software is released under the MIT License.
 // The license text is at http://opensource.org/licenses/MIT
 
-package fi.solita.jsonmigraine;
+package fi.solita.jsonmigraine.internal;
 
+import fi.solita.jsonmigraine.TypeRenames;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class DataVersionsTest {
 
     @Test
     public void json_format() throws Exception {
-        String json = "{ \"fi.solita.jsonmigraine.DataVersionsTest$Foo\" : 123 }";
+        String json = "{ \"fi.solita.jsonmigraine.internal.DataVersionsTest$Foo\" : 123 }";
 
         DataVersions versions = DataVersions.fromJson(new ObjectMapper().readTree(json), renames);
 
