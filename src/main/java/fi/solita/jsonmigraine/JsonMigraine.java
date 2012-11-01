@@ -43,8 +43,8 @@ public class JsonMigraine {
     private void upgrade(ObjectNode data, Class<?> type, DataVersions versions) {
         UpgraderInvoker invoker = new UpgraderInvokerImpl();
         UpgraderProvider provider = new AnnotationUpgraderProvider();
-        UpgradeOrderDecider decider = new UpgradeOrderDecider(invoker, provider);
+        UpgradePlanExecutor executor = new UpgradePlanExecutor(invoker, provider);
 
-        decider.upgrade(data, versions, ClassAnalyzer.createUpgradePlan(type));
+        executor.upgrade(data, versions, ClassAnalyzer.createUpgradePlan(type));
     }
 }

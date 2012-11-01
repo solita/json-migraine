@@ -11,23 +11,23 @@ public class ClassAnalyzer {
 
     private static final AnnotationUpgraderProvider provider = new AnnotationUpgraderProvider();
 
-    public static HowToUpgrade createUpgradePlan(Class<?> dataType) {
-        HowToUpgrade how = new HowToUpgrade();
+    public static UpgradePlan createUpgradePlan(Class<?> dataType) {
+        UpgradePlan plan = new UpgradePlan();
 
         for (; dataType != Object.class; dataType = dataType.getSuperclass()) {
-            how.addFirst(new UpgradeStep(dataType));
+            plan.addFirst(new UpgradeStep(dataType));
 
             for (Field field : dataType.getDeclaredFields()) {
                 Class<?> type = field.getType();
                 if (provider.isUpgradeable(type)) {
-                    how.add(new UpgradeStep(type, field.getName()));
+                    plan.add(new UpgradeStep(type, field.getName()));
                 }
                 if (type.isArray() && provider.isUpgradeable(type.getComponentType())) {
-                    how.add(new UpgradeStep(type, field.getName()));
+                    plan.add(new UpgradeStep(type, field.getName()));
                 }
             }
         }
-        return how;
+        return plan;
     }
 
     public static DataVersions readCurrentVersions(Class<?> dataType) {

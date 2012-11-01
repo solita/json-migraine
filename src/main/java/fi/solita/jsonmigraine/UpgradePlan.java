@@ -6,16 +6,16 @@ package fi.solita.jsonmigraine;
 
 import java.util.*;
 
-public class HowToUpgrade {
+public class UpgradePlan {
 
     public final List<UpgradeStep> steps = new ArrayList<UpgradeStep>();
 
-    public HowToUpgrade add(UpgradeStep step) {
+    public UpgradePlan add(UpgradeStep step) {
         steps.add(step);
         return this;
     }
 
-    public HowToUpgrade addFirst(UpgradeStep step) {
+    public UpgradePlan addFirst(UpgradeStep step) {
         steps.add(0, step);
         return this;
     }

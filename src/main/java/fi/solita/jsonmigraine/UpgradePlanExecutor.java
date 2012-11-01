@@ -9,23 +9,23 @@ import org.codehaus.jackson.node.ObjectNode;
 
 import java.util.List;
 
-public class UpgradeOrderDecider {
+public class UpgradePlanExecutor {
 
     private final UpgraderInvoker invoker;
     private final UpgraderProvider provider;
 
-    public UpgradeOrderDecider(UpgraderInvoker invoker, UpgraderProvider provider) {
+    public UpgradePlanExecutor(UpgraderInvoker invoker, UpgraderProvider provider) {
         this.invoker = invoker;
         this.provider = provider;
     }
 
-    public JsonNode upgrade(JsonNode data, DataVersions from, HowToUpgrade how) {
-        for (UpgradeStep step : how.steps) {
+    public JsonNode upgrade(JsonNode data, DataVersions versions, UpgradePlan plan) {
+        for (UpgradeStep step : plan.steps) {
             List<String> path = step.getPath();
             String fieldName = path.isEmpty() ? null : path.get(0);
             Class<?> dataType = step.getDataType();
             Class<?> upgraderType = dataType.isArray() ? dataType.getComponentType() : dataType;
-            int dataVersion = from.getVersion(upgraderType);
+            int dataVersion = versions.getVersion(upgraderType);
             Upgrader upgrader = provider.getUpgrader(upgraderType);
 
             int latestVersion = upgrader.version();

@@ -13,7 +13,7 @@ import static fi.solita.jsonmigraine.JsonFactory.unimportantObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-public class UpgradeOrderDeciderTest {
+public class UpgradePlanExecutorTest {
 
     private static final int LATEST_VERSION = 10;
     private static final int FIRST_VERSION = 100;
@@ -26,7 +26,7 @@ public class UpgradeOrderDeciderTest {
     private final InOrder inOrder = inOrder(invoker);
     private final StubUpgraderProvider provider = new StubUpgraderProvider();
 
-    private final UpgradeOrderDecider sut = new UpgradeOrderDecider(invoker, provider);
+    private final UpgradePlanExecutor sut = new UpgradePlanExecutor(invoker, provider);
 
     private final DummyUpgrader upgrader = new DummyUpgrader();
     private JsonNode data = unimportantObject();
@@ -80,11 +80,11 @@ public class UpgradeOrderDeciderTest {
     }
 
     private void upgrade() {
-        DataVersions from = new DataVersions()
+        DataVersions versions = new DataVersions()
                 .add(new DataVersion(Dummy.class, dataVersion));
-        HowToUpgrade how = new HowToUpgrade()
+        UpgradePlan plan = new UpgradePlan()
                 .add(new UpgradeStep(Dummy.class));
-        data = sut.upgrade(data, from, how);
+        data = sut.upgrade(data, versions, plan);
     }
 
     @Test
@@ -94,13 +94,13 @@ public class UpgradeOrderDeciderTest {
         provider.put(First.class, firstUpgrader);
         provider.put(Second.class, secondUpgrader);
 
-        DataVersions from = new DataVersions()
+        DataVersions versions = new DataVersions()
                 .add(new DataVersion(First.class, FIRST_VERSION - 2))
                 .add(new DataVersion(Second.class, SECOND_VERSION - 2));
-        HowToUpgrade how = new HowToUpgrade()
+        UpgradePlan plan = new UpgradePlan()
                 .add(new UpgradeStep(First.class))
                 .add(new UpgradeStep(Second.class));
-        data = sut.upgrade(data, from, how);
+        data = sut.upgrade(data, versions, plan);
 
         inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(FIRST_VERSION - 2), eq(firstUpgrader));
         inOrder.verify(invoker).upgrade(any(JsonNode.class), eq(FIRST_VERSION - 1), eq(firstUpgrader));
