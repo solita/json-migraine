@@ -28,11 +28,15 @@ public class SimpleClassesTest {
         v1.unmodified = "foo";
         v1.oldField = "bar";
 
-        String serialized = jsonMigraine.serialize(v1);
-        SimpleV2 v2 = (SimpleV2) jsonMigraine.deserialize(serialized);
+        SimpleV2 v2 = upgrade(v1);
 
         assertThat("should not change unrelated fields", v2.unmodified, is(v1.unmodified));
         assertThat("should migrate values of renamed fields", v2.newField, is(v1.oldField));
+    }
+
+    private SimpleV2 upgrade(SimpleV1 v1) throws Exception {
+        String serialized = jsonMigraine.serialize(v1);
+        return (SimpleV2) jsonMigraine.deserialize(serialized);
     }
 
 

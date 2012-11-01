@@ -29,11 +29,15 @@ public class HierarchicalClassesTest {
         v1.unmodified = "foo";
         v1.oldField = "bar";
 
-        String serialized = jsonMigraine.serialize(v1);
-        ChildV1b v2 = (ChildV1b) jsonMigraine.deserialize(serialized);
+        ChildV1b v2 = upgrade(v1);
 
         assertThat("should not change unrelated fields", v2.unmodified, is(v1.unmodified));
         assertThat("should migrate values of renamed fields", v2.newField, is(v1.oldField));
+    }
+
+    private ChildV1b upgrade(ChildV1a v1) throws Exception {
+        String serialized = jsonMigraine.serialize(v1);
+        return (ChildV1b) jsonMigraine.deserialize(serialized);
     }
 
 

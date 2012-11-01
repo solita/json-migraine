@@ -40,15 +40,19 @@ public class UpgradeOrderDecider {
 
     private ObjectNode upgradeField(ObjectNode container, int dataVersion, Upgrader upgrader, String fieldName) {
         JsonNode original = container.get(fieldName);
+        try {
 
-        JsonNode upgraded;
-        if (original instanceof ArrayNode) {
-            upgraded = upgradeArray((ArrayNode) original, dataVersion, upgrader);
-        } else {
-            upgraded = upgrade(original, dataVersion, upgrader); // XXX: not tested
+            JsonNode upgraded;
+            if (original instanceof ArrayNode) {
+                upgraded = upgradeArray((ArrayNode) original, dataVersion, upgrader);
+            } else {
+                upgraded = upgrade(original, dataVersion, upgrader); // XXX: not tested
+            }
+
+            container.put(fieldName, upgraded);  // XXX: not tested
+        } catch (ValueRemovedException e) {
+            container.remove(fieldName);
         }
-
-        container.put(fieldName, upgraded);  // XXX: not tested
         return container;
     }
 

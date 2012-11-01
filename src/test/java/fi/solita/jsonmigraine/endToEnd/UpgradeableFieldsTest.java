@@ -24,17 +24,49 @@ public class UpgradeableFieldsTest {
     }
 
     @Test
-    public void can_remove_and_rename_values_in_array_fields() throws Exception {
+    public void can_remove_values_from_array_fields() throws Exception {
         WrapperV1a v1 = new WrapperV1a();
-        v1.arrayField = new EnumV1[]{EnumV1.FOO, EnumV1.BAR};
+        v1.values = new EnumV1[]{EnumV1.BAR};
 
-        String serialized = jsonMigraine.serialize(v1);
-        WrapperV1b v2 = (WrapperV1b) jsonMigraine.deserialize(serialized);
+        WrapperV1b v2 = upgrade(v1);
 
-        assertThat(v2.arrayField, is(arrayContaining(EnumV2.FOO_RENAMED)));
+        assertThat(v2.values, is(emptyArray()));
     }
 
-    // TODO: can remove and rename values in regular fields
+    @Test
+    public void can_remove_values_from_regular_fields() throws Exception {
+        WrapperV1a v1 = new WrapperV1a();
+        v1.value = EnumV1.BAR;
+
+        WrapperV1b v2 = upgrade(v1);
+
+        assertThat(v2.value, is(nullValue()));
+    }
+
+    @Test
+    public void can_rename_values_in_array_fields() throws Exception {
+        WrapperV1a v1 = new WrapperV1a();
+        v1.values = new EnumV1[]{EnumV1.FOO};
+
+        WrapperV1b v2 = upgrade(v1);
+
+        assertThat(v2.values, is(arrayContaining(EnumV2.FOO_RENAMED)));
+    }
+
+    @Test
+    public void can_rename_values_in_regular_fields() throws Exception {
+        WrapperV1a v1 = new WrapperV1a();
+        v1.value = EnumV1.FOO;
+
+        WrapperV1b v2 = upgrade(v1);
+
+        assertThat(v2.value, is(EnumV2.FOO_RENAMED));
+    }
+
+    private WrapperV1b upgrade(WrapperV1a v1) throws Exception {
+        String serialized = jsonMigraine.serialize(v1);
+        return (WrapperV1b) jsonMigraine.deserialize(serialized);
+    }
 
 
     @Upgradeable(EnumUpgraderV1.class)
@@ -49,12 +81,14 @@ public class UpgradeableFieldsTest {
 
     @Upgradeable(WrapperUpgraderV1.class)
     static class WrapperV1a {
-        public EnumV1[] arrayField;
+        public EnumV1[] values;
+        public EnumV1 value;
     }
 
     @Upgradeable(WrapperUpgraderV1.class)
     static class WrapperV1b {
-        public EnumV2[] arrayField;
+        public EnumV2[] values;
+        public EnumV2 value;
     }
 
     static class EnumUpgraderV1 implements Upgrader {
