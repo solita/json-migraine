@@ -14,5 +14,5 @@ public interface UpgraderInvoker {
 
     ObjectNode upgradeField(ObjectNode container, String fieldName, int dataVersion, Upgrader upgrader);
 
-    JsonNode upgradeArrayField(ObjectNode container, String fieldName, int dataVersion, Upgrader upgrader);
+    ObjectNode upgradeArrayField(ObjectNode container, String fieldName, int dataVersion, Upgrader upgrader);
 }

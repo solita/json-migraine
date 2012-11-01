@@ -28,7 +28,7 @@ public class UpgraderInvokerImpl implements UpgraderInvoker {
     }
 
     @Override
-    public JsonNode upgradeArrayField(ObjectNode container, String fieldName, int dataVersion, Upgrader upgrader) {
+    public ObjectNode upgradeArrayField(ObjectNode container, String fieldName, int dataVersion, Upgrader upgrader) {
         JsonNode original = container.get(fieldName);
         if (!original.isNull()) {
             JsonNode upgraded = upgradeArray((ArrayNode) original, dataVersion, upgrader);

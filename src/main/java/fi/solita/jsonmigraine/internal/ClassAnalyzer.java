@@ -46,16 +46,16 @@ public class ClassAnalyzer {
         return results;
     }
 
-    private static Set<Class<?>> getAllTypes(Set<Class<?>> results, Class<?> type) {
+    private static void getAllTypes(Set<Class<?>> results, Class<?> type) {
         if (type == null) {
-            return results;
+            return;
         }
         if (results.contains(type)) {
-            return results;
+            return;
         }
         if (type.isArray()) {
             getAllTypes(results, type.getComponentType());
-            return results;
+            return;
         }
 
         results.add(type);
@@ -63,6 +63,5 @@ public class ClassAnalyzer {
         for (Field field : type.getDeclaredFields()) {
             getAllTypes(results, field.getType());
         }
-        return results;
     }
 }
