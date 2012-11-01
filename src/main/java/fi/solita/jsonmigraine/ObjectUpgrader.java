@@ -11,11 +11,7 @@ public abstract class ObjectUpgrader implements Upgrader {
 
     @Override
     public final JsonNode upgrade(JsonNode data, int version) {
-        if (data instanceof ObjectNode) {
-            return upgrade((ObjectNode) data, version);
-        } else {
-            throw new IllegalArgumentException("Expected an object, but got " + data);
-        }
+        return upgrade((ObjectNode) data, version);
     }
 
     public abstract ObjectNode upgrade(ObjectNode data, int version);
