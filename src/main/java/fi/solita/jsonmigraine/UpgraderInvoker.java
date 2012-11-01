@@ -5,8 +5,13 @@
 package fi.solita.jsonmigraine;
 
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.ObjectNode;
 
 public interface UpgraderInvoker {
 
-    JsonNode upgradeWholeObject(JsonNode data, int dataVersion, Upgrader upgrader);
+    JsonNode upgrade(JsonNode data, int dataVersion, Upgrader upgrader);
+
+    ObjectNode upgradeField(ObjectNode container, String fieldName, int dataVersion, Upgrader upgrader);
+
+    JsonNode upgradeArrayField(ObjectNode container, String fieldName, int dataVersion, Upgrader upgrader);
 }
