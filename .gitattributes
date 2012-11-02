@@ -2,5 +2,6 @@
 *.md            eol=lf
 *.java          eol=lf
 *.properties    eol=lf
+*.sh            eol=lf
 *.xml           eol=lf
 *.iml           eol=lf
