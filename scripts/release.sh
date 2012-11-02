@@ -45,3 +45,8 @@ mvn versions:set \
 
 git add pom.xml
 git commit -m "Prepare for next development increment"
+
+set +x
+echo "Done. Next steps:"
+echo "- Go to https://oss.sonatype.org/ and release the staging repository."
+echo "- git push; git push --tags"
