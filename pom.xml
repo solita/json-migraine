@@ -3,16 +3,29 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
     <groupId>fi.solita.json-migraine</groupId>
     <artifactId>json-migraine</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <name>JSON Migraine</name>
     <description>
         JSON data migration library for Java
     </description>
     <url>https://github.com/solita/json-migraine</url>
     <inceptionYear>2012</inceptionYear>
+
+    <scm>
+        <connection>scm:git:git://github.com/solita/json-migraine.git</connection>
+        <developerConnection>scm:git:git@github.com:solita/json-migraine.git</developerConnection>
+        <url>https://github.com/solita/json-migraine</url>
+    </scm>
 
     <licenses>
         <license>
@@ -20,6 +33,15 @@
             <url>http://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <name>Esko Luontola</name>
+            <url>http://www.orfjackal.net/</url>
+            <organization>Solita</organization>
+            <organizationUrl>http://www.solita.fi/</organizationUrl>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
