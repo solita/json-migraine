@@ -1,4 +1,4 @@
-// Copyright © 2012 Solita Oy <www.solita.fi>
+// Copyright © 2012-2013 Solita Oy <www.solita.fi>
 // This software is released under the MIT License.
 // The license text is at http://opensource.org/licenses/MIT
 
@@ -14,5 +14,8 @@ public abstract class ObjectUpgrader implements Upgrader {
         return upgrade((ObjectNode) data, version);
     }
 
+    /**
+     * @see Upgrader#upgrade
+     */
     public abstract ObjectNode upgrade(ObjectNode data, int version);
 }
