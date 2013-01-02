@@ -1,8 +1,6 @@
 <component name="CopyrightManager">
-  <settings default="">
-    <module2copyright>
-      <element module="All" copyright="MIT License" />
-    </module2copyright>
+  <settings default="MIT License">
+    <module2copyright />
     <LanguageOptions name="CSS">
       <option name="fileTypeOverride" value="1" />
     </LanguageOptions>
