@@ -4,7 +4,7 @@ Release Notes
 
 ### Upcoming Changes
 
-- TBD
+- Fixed `ClassNotFoundException` when removing classes from the class hierarchy
 
 ### JSON Migraine 1.0.0 (2012-11-02)
 

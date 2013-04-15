@@ -1,4 +1,4 @@
-// Copyright © 2012 Solita Oy <www.solita.fi>
+// Copyright © 2012-2013 Solita Oy <www.solita.fi>
 // This software is released under the MIT License.
 // The license text is at http://opensource.org/licenses/MIT
 
@@ -15,10 +15,10 @@ public class DataVersions {
     public final List<DataVersion> versions = new ArrayList<DataVersion>();
 
     public int getVersion(Class<?> dataType) {
-        return forDataType(dataType).dataVersion;
+        return forDataType(dataType.getName()).dataVersion;
     }
 
-    private DataVersion forDataType(Class<?> dataType) {
+    private DataVersion forDataType(String dataType) {
         for (DataVersion version : versions) {
             if (version.dataType.equals(dataType)) {
                 return version;
@@ -35,7 +35,7 @@ public class DataVersions {
     public JsonNode toJson() {
         ObjectNode json = JsonNodeFactory.instance.objectNode();
         for (DataVersion version : versions) {
-            json.put(version.dataType.getName(), version.dataVersion);
+            json.put(version.dataType, version.dataVersion);
         }
         return json;
     }
@@ -44,17 +44,9 @@ public class DataVersions {
         DataVersions versions = new DataVersions();
         for (String dataType : asIterable(json.getFieldNames())) {
             int dataVersion = json.get(dataType).asInt();
-            versions.add(new DataVersion(toClass(renames.getLatestName(dataType)), dataVersion));
+            versions.add(new DataVersion(renames.getLatestName(dataType), dataVersion));
         }
         return versions;
-    }
-
-    private static Class<?> toClass(String fieldName) {
-        try {
-            return Class.forName(fieldName);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static <T> Iterable<T> asIterable(final Iterator<T> iterator) {
