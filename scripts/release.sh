@@ -18,6 +18,11 @@ fi
 set -x
 
 
+# Require the release notes to contain an entry for the release version
+TODAY=`date --iso-8601=date`
+grep --fixed-strings --line-regexp --quiet "### JSON Migraine $RELEASE_VERSION ($TODAY)" RELEASE-NOTES.md
+
+
 # Release
 
 mvn versions:set \
