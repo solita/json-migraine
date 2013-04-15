@@ -24,7 +24,8 @@ mvn versions:set \
     -DgenerateBackupPoms=false \
     -DnewVersion="$RELEASE_VERSION"
 
-git add pom.xml
+git reset
+git add pom.xml RELEASE-NOTES.md
 git commit -m "Release $RELEASE_VERSION"
 
 mvn clean deploy \
