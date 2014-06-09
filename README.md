@@ -125,7 +125,7 @@ When there are multiple upgrades, things get easily complex, so having good unit
 Release Notes
 -------------
 
-### Upcoming
+### JSON Migraine 1.0.2 (2014-06-09)
 
 - Use the context class loader for deserializing by default
 
