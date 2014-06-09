@@ -1,4 +1,4 @@
-// Copyright © 2012 Solita Oy <www.solita.fi>
+// Copyright © 2012-2014 Solita Oy <www.solita.fi>
 // This software is released under the MIT License.
 // The license text is at http://opensource.org/licenses/MIT
 
@@ -35,7 +35,8 @@ public class JsonMigraine {
         ObjectNode meta = (ObjectNode) mapper.readTree(json);
 
         ObjectNode data = (ObjectNode) meta.get(DATA_FIELD);
-        Class<?> type = Class.forName(renames.getLatestName(meta.get(TYPE_FIELD).asText()));
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        Class<?> type = cl.loadClass(renames.getLatestName(meta.get(TYPE_FIELD).asText()));
         DataVersions versions = DataVersions.fromJson(meta.get(VERSIONS_FIELD), renames);
 
         upgrade(data, type, versions);

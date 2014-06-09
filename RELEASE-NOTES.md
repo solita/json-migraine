@@ -2,6 +2,10 @@
 Release Notes
 =============
 
+### Upcoming
+
+- Use the context class loader for deserializing
+
 ### JSON Migraine 1.0.1 (2013-04-15)
 
 - Fixed `ClassNotFoundException` when removing classes from the class hierarchy
