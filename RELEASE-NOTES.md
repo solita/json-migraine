@@ -4,7 +4,7 @@ Release Notes
 
 ### Upcoming
 
-- Use the context class loader for deserializing
+- Use the context class loader for deserializing by default
 
 ### JSON Migraine 1.0.1 (2013-04-15)
 

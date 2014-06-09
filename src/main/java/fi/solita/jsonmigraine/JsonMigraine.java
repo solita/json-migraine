@@ -32,11 +32,14 @@ public class JsonMigraine {
     }
 
     public Object deserialize(String json) throws Exception {
+        return deserialize(json, Thread.currentThread().getContextClassLoader());
+    }
+
+    public Object deserialize(String json, ClassLoader classLoader) throws Exception {
         ObjectNode meta = (ObjectNode) mapper.readTree(json);
 
         ObjectNode data = (ObjectNode) meta.get(DATA_FIELD);
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        Class<?> type = cl.loadClass(renames.getLatestName(meta.get(TYPE_FIELD).asText()));
+        Class<?> type = classLoader.loadClass(renames.getLatestName(meta.get(TYPE_FIELD).asText()));
         DataVersions versions = DataVersions.fromJson(meta.get(VERSIONS_FIELD), renames);
 
         upgrade(data, type, versions);
